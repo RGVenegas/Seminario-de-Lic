@@ -1,6 +1,5 @@
-<<<<<<< HEAD
+
 # Seminario-de-Lic
-=======
 # Sistema de Inteligencia Artificial Multiagente para el Diseño de Clases Multimedia
 
 ## Información del Proyecto
