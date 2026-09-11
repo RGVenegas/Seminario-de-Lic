@@ -112,9 +112,9 @@ Para visualizar y probar la demostración interactiva en un entorno local:
 
 #### Opción 1: Servidor HTTP en Python (Recomendado)
 ```bash
-python -m http.server 8080
+python -m http.server 8080 --bind 127.0.0.1
 ```
-Abrir en el navegador: `http://localhost:8080`
+Abrir en el navegador: `http://localhost:8080` o `http://127.0.0.1:8080`
 
 #### Opción 2: Apertura Directa
 Hacer doble clic sobre el archivo [`index.html`](file:///d:/Codigos%20de%20prueba/seminario%20de%20lin/index.html).
