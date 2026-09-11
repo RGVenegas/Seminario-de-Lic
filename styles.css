@@ -691,3 +691,54 @@ textarea.form-control {
   background: #ffffff;
   color: var(--text-main);
 }
+
+/* ==========================================================================
+   ESTILOS DE IMPRESIÓN Y EXPORTACIÓN A PDF (IMPRIMIR / PDF)
+   ========================================================================== */
+@media print {
+  /* Ocultar elementos de navegación, controles y terminal */
+  header, aside, .orchestration-container, .action-bar-top, .tabs-navigation, .presets-group {
+    display: none !important;
+  }
+
+  /* Resetear contenedores para abarcar la página completa */
+  body, main, .container, .grid-layout, .output-section, .glass-panel {
+    background: #ffffff !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    display: block !important;
+  }
+
+  /* Mostrar TODAS las pestañas de contenido en secuencia al imprimir */
+  .tab-content-panel {
+    display: block !important;
+    opacity: 1 !important;
+    margin-bottom: 24px;
+    page-break-inside: auto;
+  }
+
+  .module-card, .audit-panel {
+    border: 1px solid #cbd5e1 !important;
+    box-shadow: none !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+    margin-bottom: 16px !important;
+  }
+
+  /* Encabezado visible solo en impresión */
+  .output-section::before {
+    content: "DOCUMENTO DE PROPUESTA DE CLASE MULTIMEDIA BREVE - REPORTE COMPLETO";
+    display: block;
+    font-size: 1.2rem;
+    font-weight: 800;
+    color: #1e3a8a;
+    border-bottom: 2px solid #2563eb;
+    padding-bottom: 8px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+}
