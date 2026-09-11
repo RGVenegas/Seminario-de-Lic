@@ -1,7 +1,6 @@
-
 # Seminario-de-Lic
 
-# Sistema de Inteligencia Artificial Multiagente para el Diseño de Clases Multimedia
+# Sistema de Inteligencia Artificial Multiagente para el Diseño de Clases Multimedia Coherentes y Editables
 
 ## Información del Proyecto
 
@@ -13,9 +12,9 @@
 
 ## 1. Descripción General
 
-El presente proyecto implementa un sistema de Inteligencia Artificial Multiagente orientado al diseño automatizado de propuestas de clases multimedia. A diferencia de las aproximaciones monolíticas basadas en un único prompt, esta solución distribuye el trabajo entre agentes de IA especializados que colaboran para estructurar la planificación pedagógica, los contenidos teóricos, las actividades prácticas, la evaluación formativa y los recursos audiovisuales.
+El presente proyecto implementa un sistema de Inteligencia Artificial Multiagente orientado al diseño automatizado de propuestas de clases multimedia. A diferencia de las aproximaciones monolíticas basadas en un único prompt —que suelen provocar desorden, alucinaciones o inconsistencias didácticas—, esta solución distribuye el trabajo entre agentes de IA especializados organizados en un **Grafo Acíclico Dirigido (DAG)** secuencial.
 
-El flujo se complementa con un Agente Revisor (Quality Control) encargado de auditar la coherencia didáctica, comunicacional y curricular del material antes de ponerlo a disposición del docente en una interfaz modular y totalmente editable.
+Para **reducir el riesgo técnico**, la primera versión (MVP) del sistema se enfoca exclusivamente en la generación secuencial de una **clase multimedia breve** (15 a 20 minutos de desarrollo conceptual), garantizando dependencias reales entre la planificación pedagógica, la redacción teórica, la producción audiovisual y la auditoría de calidad.
 
 ---
 
@@ -23,64 +22,60 @@ El flujo se complementa con un Agente Revisor (Quality Control) encargado de aud
 
 ### 2.1 Problemática
 
-La generación aislada de componentes educativos mediante modelos de lenguaje (LLM) suele provocar:
+La generación aislada de componentes educativos mediante modelos de lenguaje (LLM) tradicionales suele provocar:
 
-* Inconsistencias entre el Objetivo de Aprendizaje (OA) y las actividades de evaluación.
-* Desajustes en la profundidad teórica respecto al nivel educativo objetivo.
-* Falta de integración entre los recursos audiovisuales sugeridos y la secuencia didáctica.
-* Inexistencia de un mecanismo de validación previo a la entrega.
+* **Desalineación Pedagógica:** Inconsistencias entre el Objetivo de Aprendizaje (OA) y el desarrollo conceptual o las actividades.
+* **Desalineación Curricular:** Desajustes en la profundidad teórica y lenguaje respecto al nivel educativo objetivo.
+* **Desalineación Comunicacional:** Falta de integración entre los recursos audiovisuales sugeridos, la locución y la secuencia didáctica.
+* **Ausencia de Validación:** Inexistencia de un mecanismo de control de calidad previo a la entrega del material al docente.
 
 ### 2.2 Solución
 
-Un sistema orquestado que recibe cuatro parámetros fundamentales:
+Un sistema multiagente orquestado en **LangGraph** que recibe cuatro parámetros fundamentales:
 
 1. Objetivo de Aprendizaje (OA).
 2. Nivel Educativo.
-3. Duración de la sesión.
+3. Duración Estimada de la sesión.
 4. Características o contexto general del curso.
 
-Con estos insumos, los agentes generan una propuesta integral estructurada en módulos independientes y editables.
+Con estos insumos, el sistema procesa el flujo por fases dependientes, aplicando ciclos acotados de revisión de 4 pasos (**`Producir ➔ Verificar ➔ Corregir ➔ Aprobar`**) antes de someter el resultado al Agente Revisor y enviarlo al motor determinista de ensamblaje de video (**FFmpeg / MoviePy**).
 
 ---
 
-## 3. Arquitectura del Sistema Multiagente
+## 3. Arquitectura del Sistema Multiagente (DAG Secuencial)
 
-El sistema se compone de siete agentes especializados con roles y responsabilidades diferenciadas:
+El sistema se compone de agentes especializados organizados en un flujo dependiente por fases:
 
-### 3.1 Agente Orquestador
+### 3.1 Agente Orquestador (LangGraph Engine)
+* **Función:** Administra el grafo de estado, gestiona las dependencias entre nodos y controla las transiciones y loops de corrección.
+* **Salida:** Estado global JSON del flujo didáctico.
 
-* **Función:** Coordina la secuencia de generación, distribuye los parámetros de entrada y compila los módulos producidos por los agentes especialistas.
-* **Salida:** JSON estructurado con el estado global de la propuesta.
+### 3.2 Fase 1: Agente de Planificación Pedagógica
+* **Función:** Diseña la secuencia didáctica dividida en tres etapas (Inicio, Desarrollo y Cierre), asigna la dosificación de tiempos y define la metodología (Clase Invertida, ABP, 5E, STEM).
+* **Salida:** Estructura temporal y metodológica validada.
 
-### 3.2 Agente de Planificación Pedagógica
+### 3.3 Fase 2: Agente de Contenidos Teóricos y Guion
+* **Función:** Recibe la planificación aprobada y redacta el cuerpo conceptual adaptado al nivel escolar, analogías explicativas, locución y el glosario de términos clave.
+* **Salida:** Guion teórico enriquecido.
 
-* **Función:** Diseña la secuencia didáctica dividida en etapas (Inicio, Desarrollo y Cierre), asigna los tiempos de ejecución y define el modelo didáctico (Clase Invertida, Aprendizaje Basado en Problemas, 5E, STEM).
-* **Salida:** Estructura temporal y metodológica de la sesión.
+### 3.4 Fase 3: Agente de Producción Audiovisual
+* **Función:** Toma el guion teórico y la planificación para generar la escaleta escena por escena (locución, imagen en pantalla, texto superpuesto) y prompts visuales para IA generativa.
+* **Salida:** Escaleta multimedia técnica y prompts visuales.
 
-### 3.3 Agente de Contenidos Teóricos
-
-* **Función:** Redacta el marco conceptual adaptado al nivel educativo, elabora analogías explicativas y compila el glosario de términos clave.
-* **Salida:** Explicación teórica enriquecida.
-
-### 3.4 Agente de Actividades Prácticas
-
-* **Función:** Diseña talleres, dinámicas grupales o individuales, y formula preguntas detonantes para promover la participación activa.
-* **Salida:** Ficha de trabajo y guías prácticas.
-
-### 3.5 Agente de Evaluación Formativa
-
-* **Función:** Elabora cuestionarios/quizzes de comprobación y construye rúbricas de evaluación detalladas por nivel de desempeño.
-* **Salida:** Instrumentos de evaluación alineados al OA.
-
-### 3.6 Agente de Producción Audiovisual
-
-* **Función:** Desarrolla escaletas para videos cortos, redacta prompts para la generación de infografías/imágenes y escribe guiones para audios explicativos.
-* **Salida:** Especificación técnica de recursos multimedia.
-
-### 3.7 Agente Revisor (Quality Control)
-
-* **Función:** Audita la coherencia global entre el Objetivo de Aprendizaje y los productos de los demás agentes. Si detecta desalineaciones, solicita correcciones específicas antes de la aprobación final.
+### 3.5 Fase 4: Agente Revisor (Quality Control - 7 Criterios)
+* **Función:** Audita la propuesta integral mediante una matriz cualitativa de **7 tópicos de calidad**:
+  1. Alineación OA vs. Contenido.
+  2. Exactitud conceptual y adecuación de lenguaje según nivel.
+  3. Coherencia entre escenas y cobertura didáctica.
+  4. Factibilidad de tiempos de la sesión.
+  5. Correspondencia exacta entre locución, imagen y texto visible.
+  6. Control de densidad de información por escena (carga cognitiva).
+  7. Trazabilidad de fuentes y comprobación de afirmaciones.
 * **Salida:** Reporte de auditoría y Score de Coherencia Pedagógica.
+
+### 3.6 Componente Determinista: Ensamblador de Video (FFmpeg / MoviePy)
+* **Función:** Concatenación determinista de pistas de audio (voz sintética), imágenes generadas y renderizado final del archivo de video MP4.
+* **Salida:** Clase multimedia breve lista para reproducción y edición.
 
 ---
 
@@ -88,22 +83,22 @@ El sistema se compone de siete agentes especializados con roles y responsabilida
 
 ```
 .
-├── contexto/                                  # Carpeta con documentos de contexto y retroalimentación del curso
-│   ├── RESPUESTAS_FEEDBACK_PROFESOR.md        # Respuestas y aclaraciones al feedback recibido
-│   └── Retroalimentacion_E1_Grupo3_Proyecto_Clases_Multimedia_DAG.docx
-├── GUIA_FUNCIONAMIENTO_PROYECTO.md            # Guía de funcionamiento y uso del prototipo (raíz)
-├── PROPUESTA_PROYECTO_SISTEMA_MULTIAGENTE.md  # Documento técnico formal del proyecto (raíz)
+├── contexto/                                  # Archivos de contexto y retroalimentación (ignorado en git remoto)
+│   ├── RESPUESTAS_FEEDBACK_PROFESOR.md        # Respuestas formales a la retroalimentación del curso
+│   └── Retroalimentacion_E1_Grupo3_...docx    # Documento oficial de retroalimentación recibida
+├── GUIA_FUNCIONAMIENTO_PROYECTO.md            # Guía explicativa con los 6 casos de prueba de evaluación
+├── PROPUESTA_PROYECTO_SISTEMA_MULTIAGENTE.md  # Documento técnico formal de arquitectura (raíz)
 ├── README.md                                  # Guía general del repositorio y hoja de ruta
-├── index.html                                 # Interfaz web interactiva del prototipo
-├── styles.css                                 # Estilos CSS3 (Glassmorphism / Theme)
-└── app.js                                     # Lógica de orquestación, simulación y exportación
+├── index.html                                 # Interfaz web interactiva del prototipo (PoC)
+├── styles.css                                 # Estilos CSS3 (Glassmorphism & Estilos de Impresión PDF)
+└── app.js                                     # Lógica de simulación DAG, edición in-situ y exportación MD
 ```
 
 ---
 
 ## 5. Instrucciones de Ejecución Local
 
-Para visualizar y probar la demostración interactiva en un entorno local, siga los siguientes pasos:
+Para visualizar y probar la demostración interactiva en un entorno local:
 
 ### Opción 1: Servidor en Python (Recomendado)
 
@@ -112,16 +107,10 @@ Para visualizar y probar la demostración interactiva en un entorno local, siga 
    ```bash
    python -m http.server 8080
    ```
-3. Abra su navegador web e ingrese a la dirección: `http://localhost:8080`
+3. Abra su navegador web e ingrese a: `http://localhost:8080`
 
-### Opción 2: Servidor en Node.js
-
-1. Abra una terminal en el directorio raíz del proyecto.
-2. Ejecute el servidor estático con:
-   ```bash
-   npx serve .
-   ```
-3. Ingrese a la URL indicada en la consola (por defecto `http://localhost:3000`).
+### Opción 2: Apertura Directa
+Hacer doble clic sobre el archivo [`index.html`](file:///d:/Codigos%20de%20prueba/seminario%20de%20lin/index.html) en el explorador de archivos.
 
 ---
 
@@ -129,80 +118,79 @@ Para visualizar y probar la demostración interactiva en un entorno local, siga 
 
 A continuación se detalla la hoja de ruta integral del proyecto, clasificada por fases y estado de ejecución:
 
-### Fase I: Concepción, Arquitectura y Prototipado Frontend (Estado: COMPLETADO)
+### Fase I: Concepción, Arquitectura y Prototipado Frontend (Estado: COMPLETADO - Entrega E1)
 
-* **Hito 1: Análisis y Definición Arquitectónica**
+* **Hito 1: Análisis y Definición Arquitectónica DAG**
   * Estado: Completado.
-  * Entregable: Especificación conceptual en `PROPUESTA_PROYECTO_SISTEMA_MULTIAGENTE.md`.
-* **Hito 2: Diseño del Modelo de Agentes y Skills**
+  * Entregable: Especificación conceptual del DAG secuencial y enfoque MVP en `PROPUESTA_PROYECTO_SISTEMA_MULTIAGENTE.md`.
+* **Hito 2: Diseño del Modelo de Agentes, Loops y 7 Criterios QC**
   * Estado: Completado.
-  * Entregable: Definición de roles, entradas y salidas para los 7 agentes.
+  * Entregable: Definición de roles, loops de 4 pasos y matriz de 7 criterios de auditoría.
 * **Hito 3: Interfaz Web Interactiva y Sistema Visual (UI/UX)**
   * Estado: Completado.
-  * Entregable: Archivos `index.html` y `styles.css` con estética Glassmorphic.
+  * Entregable: Archivos `index.html` y `styles.css` con estética Glassmorphic e impresión PDF integrada.
 * **Hito 4: Motor de Simulación y Exportación (PoC)**
   * Estado: Completado.
-  * Entregable: Lógica en `app.js` con simulación en tiempo real, edición in-situ y exportación Markdown.
+  * Entregable: Lógica en `app.js` con simulación del DAG en tiempo real, generación dinámica para OA personalizados, edición in-situ y exportación Markdown.
 
 ---
 
-### Fase II: Desarrollo del Backend Multiagente en Python (Estado: PASOS A SEGUIR)
+### Fase II: Desarrollo del Backend Multiagente en Python (Estado: PASOS A SEGUIR - Meses 2 y 3)
 
-* **Hito 5: Configuración del Servidor Backend**
+* **Hito 5: Configuración del Servidor Backend (FastAPI)**
   * Estado: Pendiente.
-  * Paso a seguir: Implementar una API RESTful en Python 3.11+ utilizando FastAPI para recibir las solicitudes del cliente frontend.
-* **Hito 6: Framework de Orquestación de Agentes**
+  * Paso a seguir: Implementar la API RESTful en Python 3.11+ con FastAPI para conectar con el cliente frontend.
+* **Hito 6: Framework de Orquestación con LangGraph**
   * Estado: Pendiente.
-  * Paso a seguir: Integrar un framework multiagente (LangChain / LangGraph o CrewAI) para definir formalmente la interacción entre agentes.
-* **Hito 7: Conexión con Proveedores de LLMs y Prompts Específicos**
+  * Paso a seguir: Programar los nodos, aristas y loops del Grafo Acíclico Dirigido en **LangGraph**.
+* **Hito 7: Conexión con LLMs (API Keys / Sistema de Cuotas Institucional)**
   * Estado: Pendiente.
-  * Paso a seguir: Conectar los agentes con APIs de modelos de lenguaje (OpenAI GPT-4o, Google Gemini Pro o Anthropic Claude) y afinar los System Prompts por asignatura.
+  * Paso a seguir: Conectar los agentes con APIs de modelos de lenguaje (OpenAI GPT-4o, Gemini Pro, Claude o Sistema de Cuotas de la Universidad).
 
 ---
 
-### Fase III: Mecanismo Avanzado de Validación y Persistencia (Estado: PASOS A SEGUIR)
+### Fase III: Mecanismo Avanzado de Validación y Persistencia (Estado: PASOS A SEGUIR - Mes 4)
 
 * **Hito 8: Algoritmo de Auto-Corrección y Feedback del Revisor**
   * Estado: Pendiente.
-  * Paso a seguir: Programar el ciclo recíproco donde el Agente Revisor rechaza borradores con Score < 85% y re-envía instrucciones específicas de corrección a cada agente.
+  * Paso a seguir: Programar el ciclo condicional donde el Agente Revisor rechaza borradores con Score < 85% y solicita reescrituras específicas.
 * **Hito 9: Base de Datos y Gestión de Historial**
   * Estado: Pendiente.
-  * Paso a seguir: Implementar una base de datos (SQLite / PostgreSQL) para permitir a los docentes guardar, clonar y versionar sus clases multimedia.
+  * Paso a seguir: Implementar SQLite / PostgreSQL para versionado y guardado de clases.
 
 ---
 
-### Fase IV: Generación Multimedia y Exportación Multiformato (Estado: PASOS A SEGUIR)
+### Fase IV: Generación Multimedia y Exportación Multiformato (Estado: PASOS A SEGUIR - Mes 5)
 
-* **Hito 10: Integración de Servicios de Generación Audiovisual**
+* **Hito 10: Integración del Componente Determinista de Video (FFmpeg / MoviePy)**
   * Estado: Pendiente.
-  * Paso a seguir: Conectar APIs externas para generar voz sintética (audio podcasts) y síntesis de imágenes/infografías reales a partir de los prompts del Agente Audiovisual.
-* **Hito 11: Módulo de Exportación Avanzada (PDF / SCORM / PPTX)**
+  * Paso a seguir: Conectar herramientas deterministas de renderizado y síntesis de voz/imágenes para generar el video MP4 final.
+* **Hito 11: Módulo de Exportación Avanzada**
   * Estado: Pendiente.
-  * Paso a seguir: Habilitar la descarga de la propuesta en formato PDF maquetado, presentaciones editables (.pptx) y paquetes SCORM compatibles con plataformas LMS (Moodle, Canvas).
+  * Paso a seguir: Exportación extendida a PDF maquetado y paquetes editables.
 
 ---
 
-### Fase V: Pruebas Piloto y Despliegue en Producción (Estado: PASOS A SEGUIR)
+### Fase V: Pruebas Piloto y Despliegue en Producción (Estado: PASOS A SEGUIR - Mes 6)
 
 * **Hito 12: Evaluación Pedagógica con Docentes**
   * Estado: Pendiente.
-  * Paso a seguir: Realizar pruebas de usabilidad con docentes reales para medir el grado de alineación pedagógica en situaciones de aula auténticas.
+  * Paso a seguir: Realizar pruebas de usabilidad pedagógica con docentes reales en aula.
 * **Hito 13: Contenerización y Despliegue Cloud**
   * Estado: Pendiente.
-  * Paso a seguir: Crear imágenes de Docker y desplegar la solución en una plataforma en la nube (ej. Render, AWS o Vercel) para su acceso público.
+  * Paso a seguir: Contenerizar con Docker y desplegar la solución en la nube.
 
 ---
 
 ## 7. Stack Tecnológico
 
-* **Frontend Prototipo:** HTML5 Semántico, CSS3 Vanilla (Glassmorphism Design System), JavaScript ES6+.
+* **Frontend Prototipo:** HTML5 Semántico, CSS3 Vanilla (Glassmorphism & Print Styles), JavaScript ES6+.
 * **Backend de Producción (Fase II):** Python 3.11+, FastAPI, **LangGraph** (Orquestador de grafos de estado y loops multiagente).
-* **Ensamblado Determinista Multimedia:** **FFmpeg / MoviePy** (Concatenación determinista de audio, imágenes y renderizado de video MP4).
-* **Modelos LLM Evaluados:** GPT-4o, Claude 3.5 Sonnet, Gemini 1.5 Pro.
+* **Ensamblado Determinista Multimedia:** **FFmpeg / MoviePy** (Concatenación de audio, imágenes y renderizado MP4).
+* **Modelos LLM Evaluados:** GPT-4o, Claude 3.5 Sonnet, Gemini Pro y Sistema de Cuotas Institucional.
 
 ---
 
 ## 8. Licencia y Créditos
 
 Proyecto desarrollado dentro del marco del ramo/curso de Seminario de Inteligencia Artificial para la automatización de la preparación didáctica docente.
-
