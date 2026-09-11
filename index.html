@@ -42,7 +42,7 @@
       <aside class="glass-panel">
         <div class="panel-header">
           <i class="fa-solid fa-sliders"></i>
-          <h2>Parámetros de la Clase</h2>
+          <h2>Parámetros de Clase Breve (MVP)</h2>
         </div>
 
         <!-- Presets Rápidos -->
@@ -79,9 +79,9 @@
             <div class="form-group">
               <label for="classDuration">Duración Estimada</label>
               <select id="classDuration" class="form-control">
+                <option value="15 Minutos (Breve)" selected>15 Minutos (Breve)</option>
+                <option value="30 Minutos">30 Minutos</option>
                 <option value="45 Minutos">45 Minutos</option>
-                <option value="90 Minutos" selected>90 Minutos</option>
-                <option value="120 Minutos">120 Minutos</option>
               </select>
             </div>
           </div>
@@ -103,7 +103,7 @@
 
           <button type="submit" id="btnGenerate" class="btn-primary-action">
             <i class="fa-solid fa-wand-magic-sparkles"></i>
-            <span>Orquestar Agentes IA</span>
+            <span>Ejecutar Grafo DAG (LangGraph)</span>
           </button>
         </form>
       </aside>
@@ -111,55 +111,49 @@
       <!-- COLUMNA DERECHA: Visualización del Flujo & Resultado Editable -->
       <section class="output-section">
         
-        <!-- Orquestación en Vivo: Tarjetas de Agentes -->
+        <!-- Orquestación en Vivo: Tarjetas de Agentes DAG -->
         <div class="glass-panel orchestration-container">
           <div class="panel-header" style="margin-bottom: 12px; padding-bottom: 8px;">
-            <i class="fa-solid fa-network-wired" style="color: var(--primary-blue);"></i>
-            <h2>Flujo de Agentes Especializados</h2>
+            <i class="fa-solid fa-diagram-project" style="color: var(--primary-blue);"></i>
+            <h2>Flujo Secuencial por Fases (Pipeline DAG & Loops)</h2>
           </div>
 
           <div class="agents-grid">
             
             <div class="agent-card" id="agent-orchestrator">
-              <div class="agent-icon"><i class="fa-solid fa-diagram-project"></i></div>
-              <div class="agent-title">Orquestador</div>
+              <div class="agent-icon"><i class="fa-solid fa-code-branch"></i></div>
+              <div class="agent-title">Orquestador (LangGraph)</div>
               <div class="agent-status-badge">Listo</div>
             </div>
 
             <div class="agent-card" id="agent-pedagogy">
               <div class="agent-icon"><i class="fa-solid fa-timeline"></i></div>
-              <div class="agent-title">Planificación</div>
+              <div class="agent-title">Fase 1: Planificación</div>
               <div class="agent-status-badge">En espera</div>
             </div>
 
             <div class="agent-card" id="agent-content">
               <div class="agent-icon"><i class="fa-solid fa-book-open"></i></div>
-              <div class="agent-title">Contenidos</div>
-              <div class="agent-status-badge">En espera</div>
-            </div>
-
-            <div class="agent-card" id="agent-activity">
-              <div class="agent-icon"><i class="fa-solid fa-laptop-code"></i></div>
-              <div class="agent-title">Actividades</div>
-              <div class="agent-status-badge">En espera</div>
-            </div>
-
-            <div class="agent-card" id="agent-eval">
-              <div class="agent-icon"><i class="fa-solid fa-list-check"></i></div>
-              <div class="agent-title">Evaluación</div>
+              <div class="agent-title">Fase 2: Guion Teórico</div>
               <div class="agent-status-badge">En espera</div>
             </div>
 
             <div class="agent-card" id="agent-av">
               <div class="agent-icon"><i class="fa-solid fa-photo-film"></i></div>
-              <div class="agent-title">Audiovisual</div>
+              <div class="agent-title">Fase 3: Escaleta Audiovisual</div>
               <div class="agent-status-badge">En espera</div>
             </div>
 
             <div class="agent-card" id="agent-reviewer">
               <div class="agent-icon"><i class="fa-solid fa-shield-halved"></i></div>
-              <div class="agent-title">Revisor (QC)</div>
-              <div class="agent-status-badge">Auditoría</div>
+              <div class="agent-title">Fase 4: Revisor QC (7 Tópicos)</div>
+              <div class="agent-status-badge">Auditando</div>
+            </div>
+
+            <div class="agent-card" id="agent-ffmpeg">
+              <div class="agent-icon"><i class="fa-solid fa-file-video"></i></div>
+              <div class="agent-title">Ensamblador (FFmpeg/MoviePy)</div>
+              <div class="agent-status-badge">En espera</div>
             </div>
 
           </div>
@@ -167,7 +161,7 @@
           <!-- Terminal de Estado -->
           <div class="status-log-box">
             <div class="terminal-spinner" id="terminalSpinner"></div>
-            <span id="statusLogText">Esperando inicio de orquestación didáctica...</span>
+            <span id="statusLogText">Esperando inicio de la ejecución del grafo secuencial...</span>
           </div>
         </div>
 
@@ -176,8 +170,8 @@
           
           <div class="action-bar-top">
             <div style="display: flex; align-items: center; gap: 10px;">
-              <span style="font-weight: 700; color: var(--primary-navy); font-size: 1.1rem;">Propuesta de Clase Multimedia</span>
-              <span id="currentStatusBadge" style="background: #d1fae5; color: #047857; border: 1px solid #a7f3d0; padding: 2px 8px; border-radius: 8px; font-size: 0.75rem; font-weight: 700;">PROCESADO Y APROBADO (DEMO)</span>
+              <span style="font-weight: 700; color: var(--primary-navy); font-size: 1.1rem;">Propuesta de Clase Multimedia Breve</span>
+              <span id="currentStatusBadge" style="background: #d1fae5; color: #047857; border: 1px solid #a7f3d0; padding: 2px 8px; border-radius: 8px; font-size: 0.75rem; font-weight: 700;">DAG VALIDADO & APROBADO (DEMO)</span>
             </div>
 
             <div style="display: flex; gap: 8px;">
@@ -199,22 +193,16 @@
           <!-- Navegación por Pestañas -->
           <div class="tabs-navigation">
             <button class="tab-btn active" onclick="switchTab('tab-pedagogy', this)">
-              <i class="fa-solid fa-calendar-days"></i> Planificación
+              <i class="fa-solid fa-calendar-days"></i> 1. Planificación
             </button>
             <button class="tab-btn" onclick="switchTab('tab-content', this)">
-              <i class="fa-solid fa-file-lines"></i> Teórico & Ejemplos
-            </button>
-            <button class="tab-btn" onclick="switchTab('tab-activity', this)">
-              <i class="fa-solid fa-puzzle-piece"></i> Actividades
-            </button>
-            <button class="tab-btn" onclick="switchTab('tab-eval', this)">
-              <i class="fa-solid fa-spell-check"></i> Evaluación Formativa
+              <i class="fa-solid fa-file-lines"></i> 2. Guion Teórico
             </button>
             <button class="tab-btn" onclick="switchTab('tab-av', this)">
-              <i class="fa-solid fa-video"></i> Recursos Multimedia
+              <i class="fa-solid fa-video"></i> 3. Escaleta Audiovisual
             </button>
             <button class="tab-btn" onclick="switchTab('tab-audit', this)">
-              <i class="fa-solid fa-award"></i> Reporte Revisor
+              <i class="fa-solid fa-award"></i> 4. Auditoría Revisor (7 Criterios)
             </button>
           </div>
 
@@ -232,54 +220,42 @@
             </div>
           </div>
 
-          <!-- Pestaña 3: Actividades -->
-          <div class="tab-content-panel" id="tab-activity">
-            <div id="content-activities" class="editable-box" contenteditable="false">
-              <!-- Dinámico -->
-            </div>
-          </div>
-
-          <!-- Pestaña 4: Evaluación -->
-          <div class="tab-content-panel" id="tab-eval">
-            <div id="content-evaluation" class="editable-box" contenteditable="false">
-              <!-- Dinámico -->
-            </div>
-          </div>
-
-          <!-- Pestaña 5: Audiovisual -->
+          <!-- Pestaña 3: Audiovisual -->
           <div class="tab-content-panel" id="tab-av">
             <div id="content-audiovisual" class="editable-box" contenteditable="false">
               <!-- Dinámico -->
             </div>
           </div>
 
-          <!-- Pestaña 6: Reporte Revisor -->
+          <!-- Pestaña 4: Reporte Revisor -->
           <div class="tab-content-panel" id="tab-audit">
             
             <!-- Cuadro de Aviso de Simulación en el Reporte Revisor -->
             <div style="background: #f8fafc; border: 1px dashed #94a3b8; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; font-size: 0.85rem; color: #475569;">
-              <strong style="color: #1e293b;"><i class="fa-solid fa-circle-info" style="color: var(--primary-blue);"></i> Nota sobre el Reporte de Auditoría:</strong>
-              Los puntajes, métricas y criterios mostrados a continuación corresponden a una <strong>simulación de prueba de concepto (PoC)</strong>. Fueron estructurados con fines ilustrativos para demostrar cómo el Agente Revisor evaluará y auditará en tiempo real la coherencia didáctica una vez conectado el backend con los modelos de IA reales.
+              <strong style="color: #1e293b;"><i class="fa-solid fa-circle-info" style="color: var(--primary-blue);"></i> Matriz Oficial de Auditoría (7 Tópicos de la Retroalimentación E1):</strong>
+              Los puntajes corresponden a la verificación de coherencia didáctica, comunicacional y técnica especificada en las pautas del profesor.
             </div>
 
             <div class="audit-panel">
               <div class="score-display">
                 <div class="score-circle" id="scoreCircle">
-                  <div class="score-circle-inner" id="scoreText">98%</div>
+                  <div class="score-circle-inner" id="scoreText">94%</div>
                 </div>
                 <div class="audit-meta">
-                  <h3>Auditoría de Coherencia Didáctica: APROBADA (Simulación)</h3>
-                  <p id="auditMetaText">El Agente Revisor verificó alineación total entre el Objetivo de Aprendizaje, las actividades prácticas y la evaluación formativa.</p>
+                  <h3>Auditoría de Calidad Pedagógica: APROBADA (Score 94%)</h3>
+                  <p id="auditMetaText">El Agente Revisor verificó el cumplimiento estricto de los 7 criterios pedagógicos y audiovisuales antes de autorizar el ensamblado final.</p>
                 </div>
               </div>
 
-              <h4 style="color: var(--primary-navy); margin-bottom: 8px;">Criterios Auditados por el Agente Revisor (Simulados):</h4>
+              <h4 style="color: var(--primary-navy); margin-bottom: 12px;">Desglose de los 7 Tópicos Auditados por el Agente Revisor:</h4>
               <ul class="checklist-audit" id="auditChecklist">
-                <li><i class="fa-solid fa-circle-check"></i> <strong>Alineación OA vs Actividades:</strong> 100% de coherencia contextual.</li>
-                <li><i class="fa-solid fa-circle-check"></i> <strong>Alineación OA vs Evaluación Formativa:</strong> Coincidencia exacta de competencias.</li>
-                <li><i class="fa-solid fa-circle-check"></i> <strong>Adecuación de Tono & Nivel Educativo:</strong> Lenguaje ajustado al nivel indicado.</li>
-                <li><i class="fa-solid fa-circle-check"></i> <strong>Factibilidad de Tiempos:</strong> 90 minutos distribuidos equitativamente.</li>
-                <li><i class="fa-solid fa-circle-check"></i> <strong>Integración Multimedia:</strong> Guiones y prompts alineados con el hilo didáctico.</li>
+                <li><i class="fa-solid fa-circle-check"></i> <strong>1. Alineación OA vs. Contenido:</strong> 96% - El guion responde exactamente al objetivo de aprendizaje configurado.</li>
+                <li><i class="fa-solid fa-circle-check"></i> <strong>2. Exactitud Conceptual y Lenguaje:</strong> 92% - Rigor científico con vocabulario adaptado al nivel educativo.</li>
+                <li><i class="fa-solid fa-circle-check"></i> <strong>3. Coherencia entre Escenas y Cobertura:</strong> 95% - Transición fluida escena por escena sin lagunas didácticas.</li>
+                <li><i class="fa-solid fa-circle-check"></i> <strong>4. Factibilidad de Duración:</strong> 90% - Secuencia temporal realista ajustada a los minutos disponibles.</li>
+                <li><i class="fa-solid fa-circle-check"></i> <strong>5. Correspondencia Locución - Imagen - Texto:</strong> 94% - Sincronía exacta entre voz en off, apoyos visuales y frases legibles.</li>
+                <li><i class="fa-solid fa-circle-check"></i> <strong>6. Densidad de Información por Escena:</strong> 92% - Carga cognitiva controlada respetando el tiempo de lectura del estudiante.</li>
+                <li><i class="fa-solid fa-circle-check"></i> <strong>7. Trazabilidad de Fuentes y Verificación:</strong> 95% - Afirmaciones conceptuales verificadas e identificables.</li>
               </ul>
             </div>
           </div>

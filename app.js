@@ -244,11 +244,9 @@ function loadPreset(key) {
 
 // Renderizado de contenidos en pestañas
 function renderPresetContent(p) {
-  document.getElementById('content-pedagogy').innerHTML = p.pedagogy;
-  document.getElementById('content-theory').innerHTML = p.theory;
-  document.getElementById('content-activities').innerHTML = p.activities;
-  document.getElementById('content-evaluation').innerHTML = p.evaluation;
-  document.getElementById('content-audiovisual').innerHTML = p.audiovisual;
+  if (document.getElementById('content-pedagogy')) document.getElementById('content-pedagogy').innerHTML = p.pedagogy;
+  if (document.getElementById('content-theory')) document.getElementById('content-theory').innerHTML = p.theory;
+  if (document.getElementById('content-audiovisual')) document.getElementById('content-audiovisual').innerHTML = p.audiovisual;
 }
 
 // Cambio de Pestañas (Tabs)
@@ -260,7 +258,7 @@ function switchTab(tabId, btnElement) {
   document.getElementById(tabId).classList.add('active');
 }
 
-// Simulación de Orquestación Multiagente
+// Simulación de Orquestación Multiagente (DAG Secuencial en LangGraph)
 async function handleGenerate(e) {
   e.preventDefault();
   
@@ -271,35 +269,40 @@ async function handleGenerate(e) {
   btn.disabled = true;
   spinner.classList.add('visible');
 
-  // Reset visual de tarjetas de agentes
-  const agentCards = ['orchestrator', 'pedagogy', 'content', 'activity', 'eval', 'av', 'reviewer'];
+  // Reset visual de tarjetas de agentes en el DAG
+  const agentCards = ['orchestrator', 'pedagogy', 'content', 'av', 'reviewer', 'ffmpeg'];
   agentCards.forEach(id => {
     const card = document.getElementById(`agent-${id}`);
-    card.className = 'agent-card';
-    card.querySelector('.agent-status-badge').innerText = 'En espera';
+    if (card) {
+      card.className = 'agent-card';
+      card.querySelector('.agent-status-badge').innerText = 'En espera';
+    }
   });
 
   const steps = [
-    { agent: 'orchestrator', status: 'Analizando OA y parametrizando flujo...', delay: 600 },
-    { agent: 'pedagogy', status: 'Planificación: Generando secuencia temporal (Inicio/Dev/Cierre)...', delay: 800 },
-    { agent: 'content', status: 'Contenidos: Redactando explicaciones teóricas y analogías...', delay: 800 },
-    { agent: 'activity', status: 'Actividades: Diseñando taller práctico en parejas...', delay: 800 },
-    { agent: 'eval', status: 'Evaluación: Construyendo quiz formativo y rúbrica...', delay: 700 },
-    { agent: 'av', status: 'Audiovisual: Generando guiones de video y prompts...', delay: 700 },
-    { agent: 'reviewer', status: 'Agente Revisor: Auditando alineación pedagógica y coherencia (Score 98%)...', delay: 1000 }
+    { agent: 'orchestrator', status: '[LangGraph Engine] Inicializando grafo de estado DAG y parametrizando OA...', delay: 600 },
+    { agent: 'pedagogy', status: '[Fase 1: Planificación] Ejecutando loop: Producir -> Verificar -> Corregir -> Aprobar...', delay: 850 },
+    { agent: 'content', status: '[Fase 2: Guion Teórico] Recibiendo planificación validada. Generando locución y explicaciones...', delay: 850 },
+    { agent: 'av', status: '[Fase 3: Escaleta Audiovisual] Insumo: Teoría aprobada. Diseñando escenas, locución y prompts...', delay: 850 },
+    { agent: 'reviewer', status: '[Fase 4: Agente Revisor] Auditando la propuesta en base a los 7 Criterios de Calidad (Score: 94%)...', delay: 1000 },
+    { agent: 'ffmpeg', status: '[Componente Determinista] Invocando FFmpeg / MoviePy para ensamblado y renderizado de video MP4...', delay: 700 }
   ];
 
   for (let i = 0; i < steps.length; i++) {
     const step = steps[i];
     const card = document.getElementById(`agent-${step.agent}`);
+    if (!card) continue;
     
     // Marcar como activo
     if(step.agent === 'reviewer') {
       card.className = 'agent-card reviewing';
-      card.querySelector('.agent-status-badge').innerText = 'Auditando';
+      card.querySelector('.agent-status-badge').innerText = 'Auditando (7 Criterios)';
+    } else if(step.agent === 'ffmpeg') {
+      card.className = 'agent-card active';
+      card.querySelector('.agent-status-badge').innerText = 'Ensamblando Video';
     } else {
       card.className = 'agent-card active';
-      card.querySelector('.agent-status-badge').innerText = 'Generando';
+      card.querySelector('.agent-status-badge').innerText = 'Procesando Loop';
     }
     
     statusLog.innerText = step.status;
@@ -307,10 +310,10 @@ async function handleGenerate(e) {
     
     // Marcar como completado
     card.className = 'agent-card completed';
-    card.querySelector('.agent-status-badge').innerText = 'OK ✓';
+    card.querySelector('.agent-status-badge').innerText = 'Aprobado ✓';
   }
 
-  statusLog.innerText = 'Orquestación completada exitosamente. Propuesta aprobada por el Agente Revisor.';
+  statusLog.innerText = 'Pipeline DAG completado con éxito. Clase multimedia breve ensamblada y validada por el Agente Revisor.';
   spinner.classList.remove('visible');
   btn.disabled = false;
 
@@ -325,8 +328,6 @@ async function handleGenerate(e) {
       approach: document.getElementById('pedagogicalApproach').value,
       pedagogy: `<div class="module-card"><h4>Plan Personalizado para:</h4><p>${customOA}</p></div>` + PRESETS.fisica.pedagogy,
       theory: PRESETS.fisica.theory,
-      activities: PRESETS.fisica.activities,
-      evaluation: PRESETS.fisica.evaluation,
       audiovisual: PRESETS.fisica.audiovisual
     };
     renderPresetContent(PRESETS.custom);

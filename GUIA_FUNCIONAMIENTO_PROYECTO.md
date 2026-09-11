@@ -1,63 +1,88 @@
-# Guía de Funcionamiento del Sistema Multiagente
+# Guía de Funcionamiento del Sistema Multiagente (Proyecto 3)
 
-## Explicación Sencilla de Operación, Flujo y Entregables del Prototipo
+## Explicación Sencilla de Operación, Arquitectura DAG, Flujo y Entregables del Prototipo
 
-> **Aviso Importante sobre esta Versión:**  
-> Los datos, puntajes e informes de evaluación mostrados en este prototipo son **simulados (ficticios / de demostración)**. Se incluyeron con el único propósito de ilustrar visualmente cómo funcionará la interfaz y el flujo de auditoría antes de conectar el servidor backend a las APIs reales de Inteligencia Artificial.
-
----
-
-### 1. ¿Qué es y qué hace el programa?
-
-El programa es una **plataforma web interactiva** que simula el trabajo colaborativo de un **equipo de 7 agentes de Inteligencia Artificial especializados**.
-
-En lugar de solicitar a un único modelo de IA (como ChatGPT de forma directa) que genere todo el material de una clase —lo que suele provocar desorden o inconsistencias—, este sistema recibe los datos de la clase que el docente desea preparar y distribuye las tareas entre agentes expertos en planificación, contenidos teóricos, actividades, evaluación y producción audiovisual, bajo la supervisión de un agente auditor de calidad.
+> **Aviso Importante sobre esta Versión de Demostración:**  
+> Los datos, puntajes e informes de evaluación mostrados en este prototipo web interactivo corresponden a una **simulación de prueba de concepto (PoC)**. Tienen la finalidad de ilustrar visualmente el comportamiento del Grafo Acíclico Dirigido (DAG) y la matriz de auditoría antes de conectar el backend a los modelos de lenguaje (LLMs) y herramientas deterministas.
 
 ---
 
-### 2. ¿Cómo funciona por dentro? (El Flujo de los 7 Agentes)
+### 1. ¿Qué es y qué problema resuelve la aplicación?
 
-Al iniciar la orquestación, el programa activa de forma secuencial los siguientes agentes:
+El programa es una **plataforma interactiva de IA Multiagente** diseñada para generar clases multimedia coherentes, evitando la desalineación pedagógica y comunicacional producida por los modelos monolíticos (un solo prompt).
 
-1. **Orquestador:** Recibe los datos de entrada (Objetivo de Aprendizaje, Nivel Educativo, Duración, Contexto) y coordina el trabajo.
-2. **Agente de Planificación Pedagógica:** Diseña la estructura temporal de la clase en tres etapas: Inicio, Desarrollo y Cierre.
-3. **Agente de Contenidos Teóricos:** Redacta el marco conceptual con lenguaje adecuado al nivel escolar, crea analogías sencillas y compila un glosario.
-4. **Agente de Actividades Prácticas:** Diseña dinámicas en parejas o grupales, talleres aplicados y preguntas detonantes de discusión.
-5. **Agente de Evaluación Formativa:** Genera cuestionarios de comprobación (quizzes) y elabora rúbricas de evaluación detalladas en tablas.
-6. **Agente de Producción Audiovisual:** Escribe el guion para un video corto (3 minutos), guiones de audio y prompts para generar infografías con IA.
-7. **Agente Revisor (Quality Control):** Audita que exista coherencia total entre el Objetivo de Aprendizaje, las actividades y la evaluación, emitiendo un porcentaje de aprobación (Score de Coherencia).
+Para **reducir el riesgo técnico**, la primera versión (MVP) de la solución se enfoca exclusivamente en la generación secuencial de una **clase multimedia breve** (15 a 20 minutos de desarrollo conceptual), estructurada a partir de:
+1. Objetivo de Aprendizaje (OA).
+2. Nivel Educativo.
+3. Duración Estimada.
+4. Enfoque Didáctico y Contexto del Curso.
 
 ---
 
-### 3. Guía Paso a Paso: ¿Cómo se usa?
+### 2. Arquitectura Interna: Flujo DAG Secuencial & Loops de Revisión
 
-1. **Abrir la aplicación:**
-   - Hacer doble clic en el archivo `index.html` o ingresar en el navegador a `http://localhost:8080`.
-2. **Ingresar o seleccionar los datos de la clase:**
-   - Se puede pulsar uno de los botones de **ejemplo rápido (1-Click)** para Física, Biología o Historia, o ingresar un Objetivo de Aprendizaje personalizado en la casilla correspondiente.
-3. **Ejecutar la IA Multiagente:**
-   - Hacer clic en el botón azul **"Orquestar Agentes IA"**.
-4. **Visualizar el proceso en vivo:**
-   - Observar cómo las tarjetas de los 7 agentes cambian de estado (*En espera ➔ Generando ➔ Completado*) junto al registro de la terminal.
-5. **Explorar y modificar el resultado:**
-   - Navegar por las pestañas superiores para revisar la propuesta generada.
+A diferencia de un flujo en paralelo, la aplicación opera mediante un **Grafo Acíclico Dirigido (DAG)** orquestado con **LangGraph**, donde cada agente produce un resultado verificado que alimenta a la etapa siguiente:
 
----
+```mermaid
+graph TD
+    User[Docente / Usuario] -->|OA + Nivel + Duración| Orch[1. Orquestador DAG - LangGraph]
+    Orch --> AgPed[2. Fase 1: Planificación Pedagógica]
+    AgPed -->|Plan Aprobado| AgCont[3. Fase 2: Guion Teórico & Locución]
+    AgCont -->|Guion Aprobado| AgAV[4. Fase 3: Escaleta Audiovisual]
+    AgAV -->|Escaleta Aprobada| Rev[5. Fase 4: Agente Revisor QC - 7 Criterios]
+    Rev -->|Score >= 85%| MediaEngine[6. Componente Determinista: FFmpeg / MoviePy]
+    MediaEngine --> Output[Clase Multimedia Breve Final Editable]
+    Output --> User
+```
 
-### 4. ¿Qué resultados produce el sistema?
-
-El sistema genera una **Propuesta de Clase Multimedia completa y coherente**, organizada en 6 pestañas principales:
-
-* **Pestaña 1 (Planificación Didáctica):** Cronograma de la sesión con distribución de minutos por etapa.
-* **Pestaña 2 (Contenidos Teóricos):** Explicaciones conceptuales, analogías adaptadas y glosario.
-* **Pestaña 3 (Actividades Prácticas):** Ficha del taller o experimento práctico para los estudiantes.
-* **Pestaña 4 (Evaluación Formativa):** Quiz de comprobación con pauta de respuestas y tabla de rúbrica.
-* **Pestaña 5 (Recursos Multimedia):** Escaleta de video explicativo, prompts para infografía y guion de audio.
-* **Pestaña 6 (Reporte de Auditoría):** Certificado de coherencia emitido por el Agente Revisor *(Datos simulados para demostración)*.
+#### Ciclos Acotados de Revisión (Loops de 4 Pasos):
+Cada fase del DAG ejecuta internamente un loop acotado antes de enviar la información a la siguiente etapa:
+$$\text{Producir} \longrightarrow \text{Verificar} \longrightarrow \text{Corregir} \longrightarrow \text{Aprobar}$$
 
 ---
 
-### 5. Funcionalidades Clave para la Presentación
+### 3. Matriz de Auditoría del Agente Revisor (7 Tópicos de Calidad)
 
-* **Edición In-Situ (Modo Edición):** Al hacer clic en el botón **"Editar Contenido"**, el texto en pantalla se vuelve editable directamente en el navegador, demostrando que el docente tiene el control final sobre el material.
-* **Exportación en Markdown / PDF:** Permite descargar el documento en formato `.md` o generar la vista para imprimir en PDF.
+El Agente Revisor (Quality Control) audita la propuesta evaluando **7 criterios específicos** derivados de la retroalimentación docente:
+
+1. **Alineación OA vs. Contenido:** Comprueba que la clase responda directamente al objetivo didáctico.
+2. **Exactitud Conceptual y Lenguaje:** Audita el rigor técnico y la adaptación al nivel educativo.
+3. **Coherencia entre Escenas y Cobertura:** Verifica una transición narrativa continua sin lagunas.
+4. **Factibilidad de Duración:** Valida que los tiempos asignados sean realistas para la duración de la clase.
+5. **Correspondencia Locución - Imagen - Texto:** Asegura sincronía entre voz hablada, gráficos y texto visible.
+6. **Densidad de Información por Escena:** Controla la carga cognitiva evaluando texto vs. permanencia en pantalla.
+7. **Trazabilidad de Fuentes y Verificación:** Identifica afirmaciones técnicas que requieren validación de fuentes.
+
+---
+
+### 4. Guía Paso a Paso: ¿Cómo se usa el prototipo web?
+
+1. **Ejecutar o Abrir la Aplicación:**
+   - Hacer doble clic en [`index.html`](file:///d:/Codigos%20de%20prueba/seminario%20de%20lin/index.html) o iniciar el servidor estático local con:
+     ```bash
+     python -m http.server 8080
+     ```
+   - Acceder en el navegador web a `http://localhost:8080`.
+2. **Seleccionar o Ingresar Parámetros:**
+   - Usar los botones de **ejemplo rápido (1-Click)** para Física (*Conservación de la Energía*), Biología (*Fotosíntesis*) o Historia (*Revolución Industrial*), o escribir un Objetivo de Aprendizaje personalizado.
+3. **Ejecutar el Grafo DAG:**
+   - Hacer clic en el botón **"Ejecutar Grafo DAG (LangGraph)"**.
+4. **Observar la Secuencia en Vivo:**
+   - Monitorear en la grilla visual el avance secuencial por fases (*Orquestador ➔ Planificación ➔ Guion ➔ Audiovisual ➔ Revisor QC ➔ Ensamblador FFmpeg*).
+5. **Navegar por las Pestañas del Resultado:**
+   - **1. Planificación:** Estructura temporal y momentos didácticos.
+   - **2. Guion Teórico:** Contenido conceptual, locución y glosario.
+   - **3. Escaleta Audiovisual:** Desglose escena por escena (locución, imagen, texto superpuesto) y prompts visuales.
+   - **4. Auditoría Revisor:** Desglose de los 7 tópicos evaluados con score global.
+6. **Edición in-situ y Exportación:**
+   - Hacer clic en **"Editar Contenido"** para modificar el texto generado directamente en pantalla.
+   - Usar el botón **"Exportar (MD)"** para descargar la propuesta en formato Markdown.
+
+---
+
+### 5. Componentes y Stack Tecnológico del Proyecto
+
+- **Frontend Prototipo:** HTML5 Semántico, CSS3 Vanilla (Glassmorphism), JavaScript ES6+ ([`app.js`](file:///d:/Codigos%20de%20prueba/seminario%20de%20lin/app.js)).
+- **Backend Multiagente (Fase II):** Python 3.11+, FastAPI, **LangGraph** (Gestión de grafos de estado y loops).
+- **Motor Determinista de Video:** **FFmpeg / MoviePy** para la renderización de escenas y locución.
+- **Modelos LLM:** GPT-4o / Claude 3.5 Sonnet / Gemini Pro.

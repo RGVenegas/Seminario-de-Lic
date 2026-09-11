@@ -1,5 +1,6 @@
 
 # Seminario-de-Lic
+
 # Sistema de Inteligencia Artificial Multiagente para el Diseño de Clases Multimedia
 
 ## Información del Proyecto
@@ -21,14 +22,18 @@ El flujo se complementa con un Agente Revisor (Quality Control) encargado de aud
 ## 2. Problemática y Solución
 
 ### 2.1 Problemática
+
 La generación aislada de componentes educativos mediante modelos de lenguaje (LLM) suele provocar:
+
 * Inconsistencias entre el Objetivo de Aprendizaje (OA) y las actividades de evaluación.
 * Desajustes en la profundidad teórica respecto al nivel educativo objetivo.
 * Falta de integración entre los recursos audiovisuales sugeridos y la secuencia didáctica.
 * Inexistencia de un mecanismo de validación previo a la entrega.
 
 ### 2.2 Solución
+
 Un sistema orquestado que recibe cuatro parámetros fundamentales:
+
 1. Objetivo de Aprendizaje (OA).
 2. Nivel Educativo.
 3. Duración de la sesión.
@@ -43,30 +48,37 @@ Con estos insumos, los agentes generan una propuesta integral estructurada en m�
 El sistema se compone de siete agentes especializados con roles y responsabilidades diferenciadas:
 
 ### 3.1 Agente Orquestador
+
 * **Función:** Coordina la secuencia de generación, distribuye los parámetros de entrada y compila los módulos producidos por los agentes especialistas.
 * **Salida:** JSON estructurado con el estado global de la propuesta.
 
 ### 3.2 Agente de Planificación Pedagógica
+
 * **Función:** Diseña la secuencia didáctica dividida en etapas (Inicio, Desarrollo y Cierre), asigna los tiempos de ejecución y define el modelo didáctico (Clase Invertida, Aprendizaje Basado en Problemas, 5E, STEM).
 * **Salida:** Estructura temporal y metodológica de la sesión.
 
 ### 3.3 Agente de Contenidos Teóricos
+
 * **Función:** Redacta el marco conceptual adaptado al nivel educativo, elabora analogías explicativas y compila el glosario de términos clave.
 * **Salida:** Explicación teórica enriquecida.
 
 ### 3.4 Agente de Actividades Prácticas
+
 * **Función:** Diseña talleres, dinámicas grupales o individuales, y formula preguntas detonantes para promover la participación activa.
 * **Salida:** Ficha de trabajo y guías prácticas.
 
 ### 3.5 Agente de Evaluación Formativa
+
 * **Función:** Elabora cuestionarios/quizzes de comprobación y construye rúbricas de evaluación detalladas por nivel de desempeño.
 * **Salida:** Instrumentos de evaluación alineados al OA.
 
 ### 3.6 Agente de Producción Audiovisual
+
 * **Función:** Desarrolla escaletas para videos cortos, redacta prompts para la generación de infografías/imágenes y escribe guiones para audios explicativos.
 * **Salida:** Especificación técnica de recursos multimedia.
 
 ### 3.7 Agente Revisor (Quality Control)
+
 * **Función:** Audita la coherencia global entre el Objetivo de Aprendizaje y los productos de los demás agentes. Si detecta desalineaciones, solicita correcciones específicas antes de la aprobación final.
 * **Salida:** Reporte de auditoría y Score de Coherencia Pedagógica.
 
@@ -76,7 +88,11 @@ El sistema se compone de siete agentes especializados con roles y responsabilida
 
 ```
 .
-├── PROPUESTA_PROYECTO_SISTEMA_MULTIAGENTE.md  # Documento técnico formal de arquitectura
+├── contexto/                                  # Carpeta con documentos de contexto y retroalimentación del curso
+│   ├── RESPUESTAS_FEEDBACK_PROFESOR.md        # Respuestas y aclaraciones al feedback recibido
+│   └── Retroalimentacion_E1_Grupo3_Proyecto_Clases_Multimedia_DAG.docx
+├── GUIA_FUNCIONAMIENTO_PROYECTO.md            # Guía de funcionamiento y uso del prototipo (raíz)
+├── PROPUESTA_PROYECTO_SISTEMA_MULTIAGENTE.md  # Documento técnico formal del proyecto (raíz)
 ├── README.md                                  # Guía general del repositorio y hoja de ruta
 ├── index.html                                 # Interfaz web interactiva del prototipo
 ├── styles.css                                 # Estilos CSS3 (Glassmorphism / Theme)
@@ -90,6 +106,7 @@ El sistema se compone de siete agentes especializados con roles y responsabilida
 Para visualizar y probar la demostración interactiva en un entorno local, siga los siguientes pasos:
 
 ### Opción 1: Servidor en Python (Recomendado)
+
 1. Abra una terminal en el directorio raíz del proyecto.
 2. Ejecute el siguiente comando:
    ```bash
@@ -98,6 +115,7 @@ Para visualizar y probar la demostración interactiva en un entorno local, siga 
 3. Abra su navegador web e ingrese a la dirección: `http://localhost:8080`
 
 ### Opción 2: Servidor en Node.js
+
 1. Abra una terminal en el directorio raíz del proyecto.
 2. Ejecute el servidor estático con:
    ```bash
@@ -112,6 +130,7 @@ Para visualizar y probar la demostración interactiva en un entorno local, siga 
 A continuación se detalla la hoja de ruta integral del proyecto, clasificada por fases y estado de ejecución:
 
 ### Fase I: Concepción, Arquitectura y Prototipado Frontend (Estado: COMPLETADO)
+
 * **Hito 1: Análisis y Definición Arquitectónica**
   * Estado: Completado.
   * Entregable: Especificación conceptual en `PROPUESTA_PROYECTO_SISTEMA_MULTIAGENTE.md`.
@@ -128,6 +147,7 @@ A continuación se detalla la hoja de ruta integral del proyecto, clasificada po
 ---
 
 ### Fase II: Desarrollo del Backend Multiagente en Python (Estado: PASOS A SEGUIR)
+
 * **Hito 5: Configuración del Servidor Backend**
   * Estado: Pendiente.
   * Paso a seguir: Implementar una API RESTful en Python 3.11+ utilizando FastAPI para recibir las solicitudes del cliente frontend.
@@ -141,6 +161,7 @@ A continuación se detalla la hoja de ruta integral del proyecto, clasificada po
 ---
 
 ### Fase III: Mecanismo Avanzado de Validación y Persistencia (Estado: PASOS A SEGUIR)
+
 * **Hito 8: Algoritmo de Auto-Corrección y Feedback del Revisor**
   * Estado: Pendiente.
   * Paso a seguir: Programar el ciclo recíproco donde el Agente Revisor rechaza borradores con Score < 85% y re-envía instrucciones específicas de corrección a cada agente.
@@ -151,6 +172,7 @@ A continuación se detalla la hoja de ruta integral del proyecto, clasificada po
 ---
 
 ### Fase IV: Generación Multimedia y Exportación Multiformato (Estado: PASOS A SEGUIR)
+
 * **Hito 10: Integración de Servicios de Generación Audiovisual**
   * Estado: Pendiente.
   * Paso a seguir: Conectar APIs externas para generar voz sintética (audio podcasts) y síntesis de imágenes/infografías reales a partir de los prompts del Agente Audiovisual.
@@ -161,6 +183,7 @@ A continuación se detalla la hoja de ruta integral del proyecto, clasificada po
 ---
 
 ### Fase V: Pruebas Piloto y Despliegue en Producción (Estado: PASOS A SEGUIR)
+
 * **Hito 12: Evaluación Pedagógica con Docentes**
   * Estado: Pendiente.
   * Paso a seguir: Realizar pruebas de usabilidad con docentes reales para medir el grado de alineación pedagógica en situaciones de aula auténticas.
@@ -173,7 +196,8 @@ A continuación se detalla la hoja de ruta integral del proyecto, clasificada po
 ## 7. Stack Tecnológico
 
 * **Frontend Prototipo:** HTML5 Semántico, CSS3 Vanilla (Glassmorphism Design System), JavaScript ES6+.
-* **Backend de Producción (Fase II):** Python 3.11+, FastAPI, LangChain / LangGraph / CrewAI.
+* **Backend de Producción (Fase II):** Python 3.11+, FastAPI, **LangGraph** (Orquestador de grafos de estado y loops multiagente).
+* **Ensamblado Determinista Multimedia:** **FFmpeg / MoviePy** (Concatenación determinista de audio, imágenes y renderizado de video MP4).
 * **Modelos LLM Evaluados:** GPT-4o, Claude 3.5 Sonnet, Gemini 1.5 Pro.
 
 ---
@@ -181,4 +205,4 @@ A continuación se detalla la hoja de ruta integral del proyecto, clasificada po
 ## 8. Licencia y Créditos
 
 Proyecto desarrollado dentro del marco del ramo/curso de Seminario de Inteligencia Artificial para la automatización de la preparación didáctica docente.
->>>>>>> d214335 (feat: propuesta preliminar sistema multiagente de clases multimedia)
+
