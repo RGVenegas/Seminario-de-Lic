@@ -83,9 +83,6 @@ El sistema se compone de agentes especializados organizados en un flujo dependie
 
 ```
 .
-├── contexto/                                  # Archivos de contexto y retroalimentación (ignorado en git remoto)
-│   ├── RESPUESTAS_FEEDBACK_PROFESOR.md        # Respuestas formales a la retroalimentación del curso
-│   └── Retroalimentacion_E1_Grupo3_...docx    # Documento oficial de retroalimentación recibida
 ├── GUIA_FUNCIONAMIENTO_PROYECTO.md            # Guía explicativa con los 6 casos de prueba de evaluación
 ├── PROPUESTA_PROYECTO_SISTEMA_MULTIAGENTE.md  # Documento técnico formal de arquitectura (raíz)
 ├── README.md                                  # Guía general del repositorio y hoja de ruta
