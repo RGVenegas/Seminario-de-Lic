@@ -49,9 +49,9 @@
         <div class="presets-group">
           <div class="presets-label">Ejemplos Rápidos de Prueba (1-Click)</div>
           <div class="preset-chips">
-            <button class="chip-btn active" onclick="loadPreset('fisica')">Física: Conservación Energía</button>
-            <button class="chip-btn" onclick="loadPreset('biologia')">Biología: Fotosíntesis</button>
-            <button class="chip-btn" onclick="loadPreset('historia')">Historia: Rev. Industrial</button>
+            <button class="chip-btn active" data-preset="fisica" onclick="loadPreset('fisica', event)">Física: Conservación Energía</button>
+            <button class="chip-btn" data-preset="biologia" onclick="loadPreset('biologia', event)">Biología: Fotosíntesis</button>
+            <button class="chip-btn" data-preset="historia" onclick="loadPreset('historia', event)">Historia: Rev. Industrial</button>
           </div>
         </div>
 

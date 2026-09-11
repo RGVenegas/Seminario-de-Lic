@@ -222,21 +222,31 @@ document.addEventListener('DOMContentLoaded', () => {
   loadPreset('fisica');
 });
 
-// Función para cargar un preset
-function loadPreset(key) {
+// Función para cargar o alternar (toggle) un preset
+function loadPreset(key, evt) {
+  const targetBtn = evt ? evt.currentTarget : document.querySelector(`.chip-btn[data-preset="${key}"]`);
+  const isAlreadyActive = targetBtn && targetBtn.classList.contains('active');
+
+  // Si el chip ya está activo y se vuelve a presionar, desmarcar (toggle off)
+  if (isAlreadyActive && evt) {
+    targetBtn.classList.remove('active');
+    currentPresetKey = null;
+    return;
+  }
+
   currentPresetKey = key;
   const p = PRESETS[key];
 
-  // Actualizar chips de preset UI
+  // Desmarcar todos los botones y activar únicamente el seleccionado
   document.querySelectorAll('.chip-btn').forEach(btn => btn.classList.remove('active'));
-  event?.target?.classList.add('active');
+  if (targetBtn) targetBtn.classList.add('active');
 
   // Llenar formulario
   document.getElementById('learningObjective').value = p.oa;
   document.getElementById('educationLevel').value = p.level;
   document.getElementById('classDuration').value = p.duration;
   document.getElementById('pedagogicalApproach').value = p.approach;
-  if(p.context) document.getElementById('courseContext').value = p.context;
+  if (p.context) document.getElementById('courseContext').value = p.context;
 
   // Llenar vista previa
   renderPresetContent(p);
