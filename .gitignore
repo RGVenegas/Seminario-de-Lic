@@ -1,7 +1,14 @@
 # Archivos de contexto e informes del profesor (no subir al repositorio remoto)
 contexto/
+notas_arquitectura/
 
 # Archivos de entorno y logs
 *.log
 .DS_Store
 Thumbs.db
+.env
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/

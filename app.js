@@ -259,6 +259,109 @@ function renderPresetContent(p) {
   if (document.getElementById('content-audiovisual')) document.getElementById('content-audiovisual').innerHTML = p.audiovisual;
 }
 
+// Renderizado de datos reales provenientes del Grafo LangGraph (FastAPI)
+function renderLangGraphContent(data) {
+  if (!data) return;
+
+  if (data.pedagogical_plan) {
+    const plan = data.pedagogical_plan;
+    let html = `
+      <div class="module-card">
+        <div class="module-header">
+          <div class="module-title"><i class="fa-solid fa-bullseye"></i> Planificación Orquestada (LangGraph)</div>
+          <span class="tag-time">${plan.estimated_total_time} Minutos</span>
+        </div>
+        <p><strong>Metodología:</strong> ${plan.methodology_applied}</p>
+        <p style="margin-top: 6px; font-size: 0.85rem; color: var(--text-muted);"><strong>Prerrequisitos:</strong> ${plan.prerequisites.join(', ')}</p>
+      </div>
+    `;
+    plan.stages.forEach(st => {
+      let icon = st.stage_name === 'Inicio' ? 'fa-play' : (st.stage_name === 'Desarrollo' ? 'fa-gears' : 'fa-flag-checkered');
+      html += `
+        <div class="module-card">
+          <div class="module-header">
+            <div class="module-title"><i class="fa-solid ${icon}"></i> Etapa: ${st.stage_name} - ${st.activity_title}</div>
+            <span class="tag-time">${st.duration_min} Min</span>
+          </div>
+          <p>${st.description}</p>
+          <p style="margin-top: 6px; font-size: 0.82rem; color: var(--primary-indigo);"><strong>Intención Didáctica:</strong> ${st.pedagogical_intent}</p>
+        </div>
+      `;
+    });
+    document.getElementById('content-pedagogy').innerHTML = html;
+  }
+
+  if (data.theory_content) {
+    const th = data.theory_content;
+    let glossHtml = th.glossary.map(g => `<li><strong>${g.term}:</strong> ${g.definition}</li>`).join('');
+    let html = `
+      <div class="module-card">
+        <h3 style="color: var(--primary-navy); margin-bottom: 10px;"><i class="fa-solid fa-atom"></i> ${th.core_concept}</h3>
+        <p>${th.core_explanation}</p>
+      </div>
+      <div class="module-card">
+        <h4 style="color: var(--primary-indigo); margin-bottom: 8px;"><i class="fa-solid fa-lightbulb"></i> Analogía Didáctica Explicativa</h4>
+        <p>${th.real_world_analogy}</p>
+      </div>
+      <div class="module-card">
+        <h4 style="color: var(--accent-teal); margin-bottom: 8px;"><i class="fa-solid fa-microphone"></i> Locución Recomendada</h4>
+        <p><em>"${th.voiceover_script}"</em></p>
+      </div>
+      <div class="module-card">
+        <h4 style="color: var(--accent-emerald); margin-bottom: 8px;"><i class="fa-solid fa-book"></i> Glosario Clave</h4>
+        <ul>${glossHtml}</ul>
+      </div>
+    `;
+    document.getElementById('content-theory').innerHTML = html;
+  }
+
+  if (data.audiovisual_storyboard) {
+    const av = data.audiovisual_storyboard;
+    let html = `
+      <div class="module-card">
+        <h3 style="color: var(--primary-navy); margin-bottom: 8px;"><i class="fa-solid fa-film"></i> ${av.video_title}</h3>
+        <p><strong>Público:</strong> ${av.target_audience} | <strong>Duración Total:</strong> ${av.total_duration_seconds} seg (${av.scenes.length} escenas)</p>
+      </div>
+    `;
+    av.scenes.forEach(sc => {
+      html += `
+        <div class="module-card">
+          <div class="module-header">
+            <div class="module-title"><i class="fa-solid fa-video"></i> Escena ${sc.scene_number} (${sc.duration_seconds} seg)</div>
+            <span class="tag-time">${sc.on_screen_text}</span>
+          </div>
+          <p><strong>Locución:</strong> "${sc.voiceover}"</p>
+          <p style="margin-top: 6px;"><strong>Composición Visual:</strong> ${sc.visual_description}</p>
+          <div style="margin-top: 10px; background: #f8fafc; padding: 10px; border-radius: 6px; font-family: var(--font-code); font-size: 0.8rem; border: 1px solid var(--border-light); white-space: pre-wrap;">
+            <strong>Prompt IA Visual:</strong> ${sc.ai_image_prompt}
+          </div>
+        </div>
+      `;
+    });
+    document.getElementById('content-audiovisual').innerHTML = html;
+  }
+
+  if (data.audit_report) {
+    const rep = data.audit_report;
+    const scoreText = document.getElementById('scoreText');
+    if (scoreText) scoreText.innerText = `${rep.global_score}%`;
+    const badge = document.getElementById('currentStatusBadge');
+    if (badge) {
+      badge.style.background = '#dbeafe';
+      badge.style.color = '#1e40af';
+      badge.style.borderColor = '#bfdbfe';
+      badge.innerText = `LANGGRAPH BACKEND ACTIVO (${rep.global_score}% APROBADO)`;
+    }
+    const auditChecklist = document.getElementById('auditChecklist');
+    if (auditChecklist && rep.criteria) {
+      auditChecklist.innerHTML = rep.criteria.map(c => `
+        <li><i class="fa-solid fa-circle-check"></i> <strong>${c.criterion_id}. ${c.criterion_name}:</strong> ${c.score}% - ${c.observation}</li>
+      `).join('');
+    }
+  }
+}
+
+
 // Cambio de Pestañas (Tabs)
 function switchTab(tabId, btnElement) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -268,7 +371,7 @@ function switchTab(tabId, btnElement) {
   document.getElementById(tabId).classList.add('active');
 }
 
-// Simulación de Orquestación Multiagente (DAG Secuencial en LangGraph)
+// Simulación / Conexión de Orquestación Multiagente (DAG Secuencial en LangGraph)
 async function handleGenerate(e) {
   e.preventDefault();
   
@@ -278,6 +381,51 @@ async function handleGenerate(e) {
   
   btn.disabled = true;
   spinner.classList.add('visible');
+
+  // Obtener inputs del formulario
+  const oaValue = document.getElementById('learningObjective').value;
+  const levelValue = document.getElementById('educationLevel').value;
+  const durationValue = document.getElementById('classDuration').value;
+  const approachValue = document.getElementById('pedagogicalApproach').value;
+  const contextValue = document.getElementById('courseContext').value || "Aula estándar con proyector.";
+
+  // Intentar conectar con backend FastAPI + LangGraph en segundo plano
+  let backendPromise = null;
+  const controller = new AbortController();
+  // Tiempo de espera amplio (90s) para permitir que los 4 agentes de OpenAI completen el flujo
+  const timeoutId = setTimeout(() => controller.abort(), 90000);
+
+  try {
+    const durNum = parseInt(durationValue) || 20;
+    console.log("[DAG Frontend] Despachando solicitud a backend FastAPI (http://127.0.0.1:8000/api/generate)...");
+
+    backendPromise = fetch("http://127.0.0.1:8000/api/generate", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        learning_objective: oaValue,
+        education_level: levelValue,
+        duration_minutes: durNum,
+        approach: approachValue,
+        context: contextValue
+      }),
+      signal: controller.signal
+    })
+    .then(async r => {
+      if (!r.ok) {
+        console.warn(`[Backend Error] Status: ${r.status}`);
+        return null;
+      }
+      return await r.json();
+    })
+    .catch(err => {
+      console.warn("[Backend Network Notice] No se pudo comunicar con FastAPI en :8000 o se canceló:", err);
+      return null;
+    })
+    .finally(() => clearTimeout(timeoutId));
+  } catch (err) {
+    backendPromise = Promise.resolve(null);
+  }
 
   // Reset visual de tarjetas de agentes en el DAG
   const agentCards = ['orchestrator', 'pedagogy', 'content', 'av', 'reviewer', 'ffmpeg'];
@@ -290,12 +438,12 @@ async function handleGenerate(e) {
   });
 
   const steps = [
-    { agent: 'orchestrator', status: '[LangGraph Engine] Inicializando grafo de estado DAG y parametrizando OA...', delay: 600 },
-    { agent: 'pedagogy', status: '[Fase 1: Planificación] Ejecutando loop: Producir -> Verificar -> Corregir -> Aprobar...', delay: 850 },
-    { agent: 'content', status: '[Fase 2: Guion Teórico] Recibiendo planificación validada. Generando locución y explicaciones...', delay: 850 },
-    { agent: 'av', status: '[Fase 3: Escaleta Audiovisual] Insumo: Teoría aprobada. Diseñando escenas, locución y prompts...', delay: 850 },
-    { agent: 'reviewer', status: '[Fase 4: Agente Revisor] Auditando la propuesta en base a los 7 Criterios de Calidad (Score: 94%)...', delay: 1000 },
-    { agent: 'ffmpeg', status: '[Componente Determinista] Invocando FFmpeg / MoviePy para ensamblado y renderizado de video MP4...', delay: 700 }
+    { agent: 'orchestrator', status: '[LangGraph Engine] Inicializando grafo de estado DAG y parametrizando OA...', delay: 700 },
+    { agent: 'pedagogy', status: '[Fase 1: Planificación] Diseñando 3 etapas pedagógicas con OpenAI...', delay: 1000 },
+    { agent: 'content', status: '[Fase 2: Guion Teórico] Redactando conceptos, analogía didáctica y glosario...', delay: 1000 },
+    { agent: 'av', status: '[Fase 3: Escaleta Audiovisual] Diseñando escenas, locución y prompts de imagen...', delay: 1000 },
+    { agent: 'reviewer', status: '[Fase 4: Agente Revisor] Auditando la propuesta en base a los 7 Criterios de Calidad...', delay: 1200 },
+    { agent: 'ffmpeg', status: '[Componente Determinista] Generando especificación JSON para ensamblador de video...', delay: 800 }
   ];
 
   for (let i = 0; i < steps.length; i++) {
@@ -304,10 +452,10 @@ async function handleGenerate(e) {
     if (!card) continue;
     
     // Marcar como activo
-    if(step.agent === 'reviewer') {
+    if (step.agent === 'reviewer') {
       card.className = 'agent-card reviewing';
       card.querySelector('.agent-status-badge').innerText = 'Auditando (7 Criterios)';
-    } else if(step.agent === 'ffmpeg') {
+    } else if (step.agent === 'ffmpeg') {
       card.className = 'agent-card active';
       card.querySelector('.agent-status-badge').innerText = 'Ensamblando Video';
     } else {
@@ -323,13 +471,29 @@ async function handleGenerate(e) {
     card.querySelector('.agent-status-badge').innerText = 'Aprobado ✓';
   }
 
-  statusLog.innerText = 'Pipeline DAG completado con éxito. Clase multimedia breve ensamblada y validada por el Agente Revisor.';
+  // Si la petición a OpenAI / LangGraph aún sigue procesando, informar en la terminal visual
+  statusLog.innerText = '[Conexión Activa con LangGraph] Esperando respuesta de OpenAI (GPT-4o mini)...';
+
+  // Esperar resultado del backend
+  const backendResult = await backendPromise;
+
+  if (backendResult && backendResult.success) {
+    console.log("[DAG Frontend] ✅ Respuesta exitosa recibida del backend LangGraph:", backendResult);
+    statusLog.innerText = '✅ Pipeline completado con éxito mediante LangGraph y OpenAI (GPT-4o mini).';
+    renderLangGraphContent(backendResult);
+  } else {
+    console.log("[DAG Frontend] Operando en modo local (sin respuesta del backend).");
+    statusLog.innerText = 'Pipeline DAG completado. Clase multimedia breve ensamblada y validada por el Agente Revisor.';
+  }
+
   spinner.classList.remove('visible');
   btn.disabled = false;
 
-  // Actualizar contenido si el usuario ingresó un Objetivo de Aprendizaje personalizado
-  const customOA = document.getElementById('learningObjective').value;
-  const isCustom = !currentPresetKey || (PRESETS[currentPresetKey] && !PRESETS[currentPresetKey].oa.includes(customOA));
+  // Si no hubo respuesta del backend real, actualizar contenido con preset o generador simulado
+  if (!backendResult || !backendResult.success) {
+    const customOA = oaValue;
+    const isCustom = !currentPresetKey || (PRESETS[currentPresetKey] && !PRESETS[currentPresetKey].oa.includes(customOA));
+
 
   if (customOA && isCustom) {
     const level = document.getElementById('educationLevel').value;
@@ -414,6 +578,7 @@ async function handleGenerate(e) {
     };
     renderPresetContent(PRESETS.custom);
   }
+}
 }
 
 // Toggle de Modo Edición directa

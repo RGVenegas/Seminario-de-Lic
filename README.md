@@ -47,22 +47,27 @@ Con estos insumos, el sistema procesa el flujo por fases dependientes, aplicando
 El sistema se compone de agentes especializados organizados en un flujo dependiente por fases:
 
 ### 3.1 Agente Orquestador (LangGraph Engine)
+
 * **Función:** Administra el grafo de estado, gestiona las dependencias entre nodos y controla las transiciones y loops de corrección.
 * **Salida:** Estado global JSON del flujo didáctico.
 
 ### 3.2 Fase 1: Agente de Planificación Pedagógica
+
 * **Función:** Diseña la secuencia didáctica dividida en tres etapas (Inicio, Desarrollo y Cierre), asigna la dosificación de tiempos y define la metodología (Clase Invertida, ABP, 5E, STEM).
 * **Salida:** Estructura temporal y metodológica validada.
 
 ### 3.3 Fase 2: Agente de Contenidos Teóricos y Guion
+
 * **Función:** Recibe la planificación aprobada y redacta el cuerpo conceptual adaptado al nivel escolar, analogías explicativas, locución y el glosario de términos clave.
 * **Salida:** Guion teórico enriquecido.
 
 ### 3.4 Fase 3: Agente de Producción Audiovisual
+
 * **Función:** Toma el guion teórico y la planificación para generar la escaleta escena por escena (locución, imagen en pantalla, texto superpuesto) y prompts visuales para IA generativa.
 * **Salida:** Escaleta multimedia técnica y prompts visuales.
 
 ### 3.5 Fase 4: Agente Revisor (Quality Control - 7 Criterios)
+
 * **Función:** Audita la propuesta integral mediante una matriz cualitativa de **7 tópicos de calidad**:
   1. Alineación OA vs. Contenido.
   2. Exactitud conceptual y adecuación de lenguaje según nivel.
@@ -74,6 +79,7 @@ El sistema se compone de agentes especializados organizados en un flujo dependie
 * **Salida:** Reporte de auditoría y Score de Coherencia Pedagógica.
 
 ### 3.6 Componente Determinista: Ensamblador de Video (FFmpeg / MoviePy)
+
 * **Función:** Concatenación determinista de pistas de audio (voz sintética), imágenes generadas y renderizado final del archivo de video MP4.
 * **Salida:** Clase multimedia breve lista para reproducción y edición.
 
@@ -83,31 +89,73 @@ El sistema se compone de agentes especializados organizados en un flujo dependie
 
 ```
 .
+├── backend/                                   # Backend en Python (FastAPI + LangGraph)
+│   ├── app/
+│   │   ├── core/config.py                     # Configuración y umbrales de auditoría
+│   │   ├── graph/
+│   │   │   ├── schemas.py                     # Modelos Pydantic de entrada, salida y 7 criterios
+│   │   │   ├── state.py                       # ClassDesignState (TypedDict global)
+│   │   │   ├── prompts.py                     # Prompts especializados por agente
+│   │   │   ├── nodes.py                       # Funciones de cada agente del DAG
+│   │   │   └── pipeline.py                    # StateGraph compilado con loops y aristas condicionales
+│   │   └── main.py                            # Servidor FastAPI (endpoints /api/generate y /docs)
+│   ├── requirements.txt                       # Dependencias: fastapi, langgraph, langchain-core, langchain-openai
+│   └── test_pipeline.py                       # Test de ejecución autónoma del grafo LangGraph
 ├── GUIA_FUNCIONAMIENTO_PROYECTO.md            # Guía explicativa con los 6 casos de prueba de evaluación
 ├── PROPUESTA_PROYECTO_SISTEMA_MULTIAGENTE.md  # Documento técnico formal de arquitectura (raíz)
 ├── README.md                                  # Guía general del repositorio y hoja de ruta
 ├── index.html                                 # Interfaz web interactiva del prototipo (PoC)
 ├── styles.css                                 # Estilos CSS3 (Glassmorphism & Estilos de Impresión PDF)
-└── app.js                                     # Lógica de simulación DAG, edición in-situ y exportación MD
+└── app.js                                     # Cliente interactivo (conecta con FastAPI o modo offline)
 ```
 
 ---
 
 ## 5. Instrucciones de Ejecución Local
 
-Para visualizar y probar la demostración interactiva en un entorno local:
+### Opción 1: Ejecución Completa (Backend LangGraph + Frontend)
 
-### Opción 1: Servidor en Python (Recomendado)
+1. **Instalar dependencias del backend:**
 
-1. Abra una terminal en el directorio raíz del proyecto.
-2. Ejecute el siguiente comando:
+   ```bash
+   pip install -r backend/requirements.txt
+   ```
+
+   *O instalar manualmente los paquetes clave de LangChain / LangGraph:*
+
+   ```bash
+   pip install langchain-openai langgraph fastapi uvicorn pydantic python-dotenv
+   ```
+2. **Configurar API Key de OpenAI (en archivo `.env`):**
+
+   ```env
+   OPENAI_API_KEY=tu_api_key_aqui
+   OPENAI_MODEL=gpt-4o-mini
+   ```
+3. **Probar el grafo de LangGraph de forma autónoma con la LLM:**
+
+   ```bash
+   python backend/test_pipeline.py
+   ```
+4. **Iniciar el servidor API FastAPI:**
+
+   ```bash
+   python -m uvicorn backend.app.main:app --reload --port 8000
+   ```
+
+   *Acceso a documentación interactiva Swagger:* `http://127.0.0.1:8000/docs`
+5. **Servir la interfaz web:**
+   En otra terminal en la raíz del proyecto:
+
    ```bash
    python -m http.server 8080 --bind 127.0.0.1
    ```
-3. Abra su navegador web e ingrese a: `http://localhost:8080` o `http://127.0.0.1:8080`
 
-### Opción 2: Apertura Directa
-Hacer doble clic sobre el archivo [`index.html`](file:///d:/Codigos%20de%20prueba/seminario%20de%20lin/index.html) en el explorador de archivos.
+   Abrir en el navegador: `http://localhost:8080` (La interfaz se conectará automáticamente a LangGraph).
+
+### Opción 2: Solo Frontend (Modo Demostración Rápida / Standalone)
+
+Hacer doble clic sobre el archivo [index.html](file:///c:/Users/Rodrigo/Desktop/Seminario-de-Lic/index.html) o servirlo mediante `python -m http.server 8080 --bind 127.0.0.1`. Si el backend no está iniciado, la interfaz operará en modo demostración local sin interrupciones.
 
 ---
 
@@ -132,14 +180,14 @@ A continuación se detalla la hoja de ruta integral del proyecto, clasificada po
 
 ---
 
-### Fase II: Desarrollo del Backend Multiagente en Python (Estado: PASOS A SEGUIR - Meses 2 y 3)
+### Fase II: Desarrollo del Backend Multiagente en Python (Estado: EN PROGRESO / BASE IMPLEMENTADA)
 
 * **Hito 5: Configuración del Servidor Backend (FastAPI)**
-  * Estado: Pendiente.
-  * Paso a seguir: Implementar la API RESTful en Python 3.11+ con FastAPI para conectar con el cliente frontend.
+  * Estado: Base Implementada.
+  * Entregable: API RESTful en `backend/app/main.py` con endpoint `/api/generate`, soporte CORS y documentación Swagger.
 * **Hito 6: Framework de Orquestación con LangGraph**
-  * Estado: Pendiente.
-  * Paso a seguir: Programar los nodos, aristas y loops del Grafo Acíclico Dirigido en **LangGraph**.
+  * Estado: Base Implementada y Probada.
+  * Entregable: Grafo compilado en `backend/app/graph/pipeline.py` con nodos (`pedagogy`, `theory`, `audiovisual`, `reviewer`), esquemas Pydantic y script de verificación `test_pipeline.py`.
 * **Hito 7: Conexión con LLMs (API Keys / Sistema de Cuotas Institucional)**
   * Estado: Pendiente.
   * Paso a seguir: Conectar los agentes con APIs de modelos de lenguaje (OpenAI GPT-4o, Gemini Pro, Claude o Sistema de Cuotas de la Universidad).
@@ -182,9 +230,9 @@ A continuación se detalla la hoja de ruta integral del proyecto, clasificada po
 ## 7. Stack Tecnológico
 
 * **Frontend Prototipo:** HTML5 Semántico, CSS3 Vanilla (Glassmorphism & Print Styles), JavaScript ES6+.
-* **Backend de Producción (Fase II):** Python 3.11+, FastAPI, **LangGraph** (Orquestador de grafos de estado y loops multiagente).
+* **Backend de Producción (Fase II):** Python 3.11+, FastAPI, **LangGraph** (Orquestador de grafos de estado y loops multiagente), **LangChain / langchain-openai** (Integración con LLMs y salidas estructuradas).
 * **Ensamblado Determinista Multimedia:** **FFmpeg / MoviePy** (Concatenación de audio, imágenes y renderizado MP4).
-* **Modelos LLM Evaluados:** GPT-4o, Claude 3.5 Sonnet, Gemini Pro y Sistema de Cuotas Institucional.
+* **Modelos LLM Integrados y Evaluados:** OpenAI (GPT-4o / GPT-4o-mini), Claude 3.5 Sonnet, Gemini Pro y Sistema de Cuotas Institucional.
 
 ---
 
