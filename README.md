@@ -236,6 +236,14 @@ A continuación se detalla la hoja de ruta integral del proyecto, clasificada po
 
 ---
 
-## 8. Licencia y Créditos
+## 8. Notas de Arquitectura e Investigaciones en Curso
+
+* [Aclaración de Orquestación y Sistema Multiagente](notas_arquitectura/ACLARACION_ORQUESTADOR_Y_MULTIAGENTES.md)
+* [Requerimiento de Formato Multimedia (Imágenes + TTS)](notas_arquitectura/REQUERIMIENTO_PROFESOR_MULTIMEDIA_TTS.md)
+* [Investigación de Modelos de Generación de Imágenes IA (Fidelidad de Sujetos y Concept Bleeding)](notas_arquitectura/INVESTIGACION_MODELOS_GENERACION_IMAGENES_IA.md)
+
+---
+
+## 9. Licencia y Créditos
 
 Proyecto desarrollado dentro del marco del ramo/curso de Seminario de Inteligencia Artificial para la automatización de la preparación didáctica docente.

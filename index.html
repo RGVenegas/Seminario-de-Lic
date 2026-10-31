@@ -67,12 +67,12 @@
 
           <div class="form-row">
             <div class="form-group">
-              <label for="educationLevel">Nivel Educativo</label>
+              <label for="educationLevel">Nivel Educativo (Sistema Escolar Chileno)</label>
               <select id="educationLevel" class="form-control">
-                <option value="Primaria (5º - 6º)">Primaria (5º - 6º)</option>
-                <option value="Secundaria (1º - 4º)" selected>Secundaria (1º - 4º)</option>
-                <option value="Bachillerato / Media">Bachillerato / Media</option>
-                <option value="Educación Superior / Univ.">Educación Superior / Univ.</option>
+                <option value="Enseñanza Básica (1º - 4º Básico)">Enseñanza Básica (1º - 4º Básico)</option>
+                <option value="Enseñanza Básica (5º - 8º Básico)">Enseñanza Básica (5º - 8º Básico)</option>
+                <option value="Enseñanza Media (1º - 4º Medio)" selected>Enseñanza Media (1º - 4º Medio)</option>
+                <option value="Educación Superior (CFT / IP / Universidad)">Educación Superior (CFT / IP / Universidad)</option>
               </select>
             </div>
 
@@ -204,6 +204,9 @@
             <button class="tab-btn" onclick="switchTab('tab-audit', this)">
               <i class="fa-solid fa-award"></i> 4. Auditoría Revisor (7 Criterios)
             </button>
+            <button class="tab-btn" onclick="switchTab('tab-video', this)" style="border-left: 2px solid var(--primary-blue); font-weight: 700; color: var(--primary-blue);">
+              <i class="fa-solid fa-circle-play"></i> 5. Video Final (TTS + IA)
+            </button>
           </div>
 
           <!-- Pestaña 1: Planificación -->
@@ -257,6 +260,70 @@
                 <li><i class="fa-solid fa-circle-check"></i> <strong>6. Densidad de Información por Escena:</strong> 92% - Carga cognitiva controlada respetando el tiempo de lectura del estudiante.</li>
                 <li><i class="fa-solid fa-circle-check"></i> <strong>7. Trazabilidad de Fuentes y Verificación:</strong> 95% - Afirmaciones conceptuales verificadas e identificables.</li>
               </ul>
+            </div>
+          </div>
+
+          <!-- Pestaña 5: Video Final con TTS e Imágenes IA -->
+          <div class="tab-content-panel" id="tab-video">
+            <div class="module-card" style="background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%); border-left: 4px solid var(--primary-blue);">
+              <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                <div>
+                  <h3 style="color: var(--primary-navy); margin-bottom: 4px;">
+                    <i class="fa-solid fa-film"></i> Productora Multimedia (TTS Neural + Ilustración IA + Ensamblado)
+                  </h3>
+                  <p style="font-size: 0.88rem; color: var(--text-muted);">
+                    Sincroniza la narración hablada (Edge-TTS en español chileno/latino) con las ilustraciones de cada escena en un archivo MP4 reproducible.
+                  </p>
+                </div>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                  <select id="videoVoiceSelect" class="form-control" style="font-size: 0.82rem; padding: 6px 10px; width: auto;">
+                    <option value="es-CL-LorenzoNeural" selected>🇨🇱 Lorenzo (Chile - Masculina)</option>
+                    <option value="es-CL-CatalinaNeural">🇨🇱 Catalina (Chile - Femenina)</option>
+                    <option value="es-MX-DaliaNeural">🇲🇽 Dalia (Latam - Femenina)</option>
+                    <option value="es-MX-JorgeNeural">🇲🇽 Jorge (Latam - Masculina)</option>
+                  </select>
+                  <button id="btnRenderVideo" class="btn-primary" onclick="handleRenderVideo()" style="padding: 9px 18px; font-size: 0.88rem; display: inline-flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    <span>Renderizar Video MP4</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Contenedor del Reproductor de Video -->
+            <div id="videoPlayerSection" style="margin-top: 18px;">
+              <!-- Placeholder antes de renderizar -->
+              <div id="videoPlaceholder" class="module-card" style="text-align: center; padding: 40px 20px; border: 2px dashed #cbd5e1;">
+                <div style="font-size: 3rem; color: #94a3b8; margin-bottom: 12px;">
+                  <i class="fa-solid fa-clapperboard"></i>
+                </div>
+                <h4 style="color: var(--primary-navy); margin-bottom: 6px;">Video Aún No Ensamblado</h4>
+                <p style="font-size: 0.9rem; color: var(--text-muted); max-width: 500px; margin: 0 auto 16px;">
+                  Haz clic en <strong>"Renderizar Video MP4"</strong> para sintetizar la locución por escena con IA neural, generar las imágenes didácticas y compilar el archivo MP4 sincronizado.
+                </p>
+              </div>
+
+              <!-- Reproductor Activo (Oculto inicialmente) -->
+              <div id="videoActiveContainer" style="display: none;">
+                <div class="video-wrapper" style="position: relative; background: #0b1120; border-radius: 12px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.25);">
+                  <video id="multimediaPlayer" controls style="width: 100%; max-height: 480px; display: block; margin: 0 auto; outline: none; background: #000;"></video>
+                </div>
+                
+                <div style="margin-top: 12px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px;">
+                  <div id="videoMetadataInfo" style="font-size: 0.85rem; color: var(--text-muted);">
+                    <i class="fa-solid fa-circle-check" style="color: var(--accent-emerald);"></i> <strong>Video Generado:</strong> <span id="videoDurationLabel">0s</span> | H.264 + AAC (1280x720 HD)
+                  </div>
+                  <a id="btnDownloadVideo" href="#" download="clase_multimedia.mp4" class="btn-secondary" style="font-size: 0.85rem; padding: 6px 14px; text-decoration: none;">
+                    <i class="fa-solid fa-download"></i> Descargar Archivo MP4
+                  </a>
+                </div>
+
+                <!-- Desglose de Escenas y Pistas de Audio Individuales -->
+                <h4 style="color: var(--primary-navy); margin: 24px 0 12px;"><i class="fa-solid fa-layer-group"></i> Insumos Multimedia por Escena:</h4>
+                <div id="scenesMediaContainer" class="scenes-media-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 16px;">
+                  <!-- Escenas individuales dinámicas -->
+                </div>
+              </div>
             </div>
           </div>
 

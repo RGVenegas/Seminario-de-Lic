@@ -7,8 +7,14 @@ notas_arquitectura/
 .DS_Store
 Thumbs.db
 .env
+backend/.env
 .venv/
 venv/
 __pycache__/
 *.py[cod]
 .pytest_cache/
+
+# Archivos multimedia generados en tiempo de ejecución (audios, imágenes, videos)
+backend/output/
+*.mp4
+*.mp3

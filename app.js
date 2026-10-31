@@ -7,7 +7,7 @@
 const PRESETS = {
   fisica: {
     oa: "Comprender la Ley de Conservación de la Energía (la energía no se crea ni se destruye, solo se transforma) y aplicar sus principios a situaciones cotidianas.",
-    level: "Secundaria (1º - 4º)",
+    level: "Enseñanza Media (1º - 4º Medio)",
     duration: "90 Minutos",
     approach: "Clase Invertida (Flipped Classroom)",
     context: "Aula equipada con proyector y trabajo colaborativo en parejas.",
@@ -131,7 +131,7 @@ const PRESETS = {
 
       <div class="module-card">
         <h4 style="color: var(--primary-indigo); margin-bottom: 10px;"><i class="fa-solid fa-image"></i> Prompt para Generación de Infografía (IA Generativa Visual)</h4>
-        <pre style="background: #f8fafc; padding: 12px; border-radius: 8px; font-family: var(--font-code); font-size: 0.82rem; color: #1e293b; border: 1px solid var(--border-light); white-space: pre-wrap;">"A clean vector educational infographic explaining the Law of Conservation of Energy, featuring a rollercoaster loop with color-coded energy bars (Green for Potential, Blue for Kinetic), white background with subtle slate lines, clean academic typography, high resolution."</pre>
+        <pre style="background: #f8fafc; padding: 12px; border-radius: 8px; font-family: var(--font-code); font-size: 0.82rem; color: #1e293b; border: 1px solid var(--border-light); white-space: pre-wrap;">"Infografía vectorial didáctica y limpia que explica la Ley de Conservación de la Energía, con una montaña rusa y barras de energía codificadas por colores (Verde para Potencial, Azul para Cinética), tipografía moderna y alta resolución."</pre>
       </div>
 
       <div class="module-card">
@@ -143,7 +143,7 @@ const PRESETS = {
 
   biologia: {
     oa: "Explicar el proceso de fotosíntesis en las plantas y su importancia en el flujo de energía dentro de la cadena trófica.",
-    level: "Primaria (5º - 6º)",
+    level: "Enseñanza Básica (5º - 8º Básico)",
     duration: "45 Minutos",
     approach: "Aprendizaje Basado en Problemas (ABP)",
     context: "Trabajo con hojas recolectadas del patio escolar.",
@@ -194,15 +194,15 @@ const PRESETS = {
     `,
     audiovisual: `
       <div class="module-card">
-        <h4>Prompt Infografía Ilustrada para Niños</h4>
-        <pre style="background: #f8fafc; padding: 12px; border-radius: 8px; color: #1e293b; border: 1px solid var(--border-light);">"Cute colorful cartoon illustration showing a happy plant absorbing sunlight, water droplets, and CO2, releasing oxygen bubbles, friendly educational style for kids."</pre>
+        <h4>Prompt Infografía Ilustrada para Estudiantes</h4>
+        <pre style="background: #f8fafc; padding: 12px; border-radius: 8px; color: #1e293b; border: 1px solid var(--border-light);">"Ilustración didáctica y colorida que muestra una planta saludable absorbiendo luz solar, agua y CO2, liberando oxígeno, diseño educativo y amigable para enseñanza básica."</pre>
       </div>
     `
   },
 
   historia: {
     oa: "Analizar las causas y consecuencias de la Revolución Industrial en la transformación del trabajo y la vida urbana.",
-    level: "Bachillerato / Media",
+    level: "Enseñanza Media (1º - 4º Medio)",
     duration: "90 Minutos",
     approach: "Modelo de Indagación 5E",
     context: "Analítica comparativa de fuentes históricas y grabados del siglo XIX.",
@@ -262,6 +262,9 @@ function renderPresetContent(p) {
 // Renderizado de datos reales provenientes del Grafo LangGraph (FastAPI)
 function renderLangGraphContent(data) {
   if (!data) return;
+  if (data.audiovisual_storyboard) {
+    window.lastStoryboard = data.audiovisual_storyboard;
+  }
 
   if (data.pedagogical_plan) {
     const plan = data.pedagogical_plan;
@@ -572,7 +575,7 @@ async function handleGenerate(e) {
 
         <div class="module-card">
           <h4 style="color: var(--primary-indigo); margin-bottom: 10px;"><i class="fa-solid fa-image"></i> Prompt para Infografía (IA Generativa Visual)</h4>
-          <pre>"Educational vector infographic explaining: ${customOA}, clean academic layout, high resolution, suitable for ${level} students."</pre>
+          <pre>"Infografía didáctica en español que explica: ${customOA}, diseño pedagógico moderno, alta resolución, adaptado a estudiantes de ${level}."</pre>
         </div>
       `
     };
@@ -655,4 +658,157 @@ ${auditText}
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
+}
+
+
+// ==========================================================================
+// RENDERIZADO Y ENSAMBLADO MULTIMEDIA (TTS NEURAL + IMÁGENES + VIDEO MP4)
+// ==========================================================================
+window.lastStoryboard = null;
+
+async function handleRenderVideo() {
+  const btn = document.getElementById('btnRenderVideo');
+  const voiceSelect = document.getElementById('videoVoiceSelect');
+  const voice = voiceSelect ? voiceSelect.value : 'es-CL-LorenzoNeural';
+  const statusLog = document.getElementById('statusLogText');
+  const ffmpegCard = document.getElementById('agent-ffmpeg');
+
+  let storyboard = window.lastStoryboard;
+  if (!storyboard) {
+    // Generar storyboard pedagógico de contingencia basado en el formulario o preset actual
+    const currentOa = document.getElementById('learningObjective').value || "Conservación de la Energía";
+    const currentLevel = document.getElementById('educationLevel').value || "Enseñanza Media (1º - 4º Medio)";
+    storyboard = {
+      video_title: `Clase Breve: ${currentOa.substring(0, 45)}`,
+      target_audience: currentLevel,
+      total_duration_seconds: 15,
+      scenes: [
+        {
+          scene_number: 1,
+          duration_seconds: 5,
+          voiceover: `Bienvenidos a esta clase breve. Hoy exploraremos el siguiente objetivo de aprendizaje: ${currentOa.substring(0, 100)}.`,
+          visual_description: "Apertura didáctica con título central e infografía ilustrativa.",
+          on_screen_text: `Introducción al Tema: ${currentOa.substring(0, 40)}`,
+          ai_image_prompt: `Ilustración didáctica y moderna para estudiantes de enseñanza media que introduce el concepto de ${currentOa.substring(0, 50)}, estilo infografía científica con colores vivos`
+        },
+        {
+          scene_number: 2,
+          duration_seconds: 5,
+          voiceover: "Para comprenderlo mejor, analicemos cómo se manifiestan estos principios en situaciones concretas de nuestro entorno cotidiano.",
+          visual_description: "Diagrama conceptual interactivo con vectores explicativos.",
+          on_screen_text: "Desarrollo Conceptual y Aplicación en la Vida Real",
+          ai_image_prompt: `Diagrama científico interactivo y claro que explica los mecanismos de ${currentOa.substring(0, 50)}, estilo infografía didáctica para adolescentes`
+        },
+        {
+          scene_number: 3,
+          duration_seconds: 5,
+          voiceover: "En conclusión: la comprensión de estos principios nos permite explicar cómo funciona el mundo que nos rodea. ¡Nos vemos en la próxima lección!",
+          visual_description: "Síntesis gráfica de conceptos clave y despedida formativa.",
+          on_screen_text: "Síntesis Conceptual y Cierre Metacognitivo",
+          ai_image_prompt: `Lámina infográfica de síntesis con iconos de los conceptos aprendidos, diseño didáctico limpio y moderno en español`
+        }
+      ]
+    };
+  }
+
+  btn.disabled = true;
+  btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> <span>Ensamblando Video MP4...</span>';
+  if (ffmpegCard) {
+    ffmpegCard.className = 'agent-card active';
+    ffmpegCard.querySelector('.agent-status-badge').innerText = 'Sintetizando TTS & Ensamblando';
+  }
+  if (statusLog) {
+    statusLog.innerText = 'Sintetizando locución neural (Edge-TTS), generando ilustraciones y ensamblando MP4 con MoviePy...';
+  }
+
+  try {
+    const response = await fetch('http://127.0.0.1:8000/api/render-video', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ storyboard: storyboard, voice: voice })
+    });
+
+    if (!response.ok) {
+      const errData = await response.json().catch(() => ({}));
+      throw new Error(errData.detail || `Error en servidor (:8000 status ${response.status})`);
+    }
+
+    const data = await response.json();
+    console.log('[Video Renderer] Éxito:', data);
+
+    // Actualizar visuales del DAG
+    if (ffmpegCard) {
+      ffmpegCard.className = 'agent-card success';
+      ffmpegCard.querySelector('.agent-status-badge').innerText = 'Completado [OK]';
+    }
+    if (statusLog) {
+      statusLog.innerText = `✅ Video multimedia ensamblado exitosamente (${data.total_duration_seconds} seg). Listo para reproducción y descarga.`;
+    }
+
+    // Activar reproductor de video HTML5
+    const placeholder = document.getElementById('videoPlaceholder');
+    const activeCont = document.getElementById('videoActiveContainer');
+    const player = document.getElementById('multimediaPlayer');
+    const dlBtn = document.getElementById('btnDownloadVideo');
+    const durLabel = document.getElementById('videoDurationLabel');
+    const scenesCont = document.getElementById('scenesMediaContainer');
+
+    if (placeholder) placeholder.style.display = 'none';
+    if (activeCont) activeCont.style.display = 'block';
+
+    const videoUrl = `http://127.0.0.1:8000${data.video_url}`;
+    if (player) {
+      player.src = videoUrl;
+      player.load();
+    }
+    if (dlBtn) {
+      dlBtn.href = videoUrl;
+      dlBtn.setAttribute('download', data.video_filename || 'clase_multimedia.mp4');
+    }
+    if (durLabel) {
+      durLabel.innerText = `${data.total_duration_seconds} segundos (${data.scenes_count} escenas)`;
+    }
+
+    // Mostrar fichas individuales de cada escena (Audio + Imagen)
+    if (scenesCont && data.scenes) {
+      scenesCont.innerHTML = data.scenes.map(sc => `
+        <div class="scene-media-card">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <strong style="color: var(--primary-navy); font-size: 0.9rem;">
+              <i class="fa-solid fa-film"></i> Escena ${sc.scene_number}
+            </strong>
+            <span class="tag-time">${sc.duration_seconds}s</span>
+          </div>
+          <img src="http://127.0.0.1:8000${sc.image_url}" class="scene-media-thumb" alt="Escena ${sc.scene_number}" loading="lazy">
+          <audio controls src="http://127.0.0.1:8000${sc.audio_url}" class="scene-audio-player"></audio>
+          <p style="font-size: 0.82rem; color: var(--text-main); margin-top: 4px;">
+            <strong>Locución:</strong> "${sc.voiceover}"
+          </p>
+          <div style="font-size: 0.75rem; color: var(--primary-indigo); background: #f8fafc; padding: 6px 8px; border-radius: 6px; border: 1px solid var(--border-light);">
+            <strong>Texto en Pantalla:</strong> ${sc.on_screen_text}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Cambiar a la pestaña de video si no está activa
+    const videoTabBtn = document.querySelector("button[onclick*='tab-video']");
+    if (videoTabBtn) {
+      switchTab('tab-video', videoTabBtn);
+    }
+
+  } catch (err) {
+    console.error('[Video Renderer] Falla:', err);
+    alert('No se pudo completar el ensamblado del video: ' + err.message + '\nVerifica que el servidor backend esté corriendo en http://127.0.0.1:8000 (uvicorn backend.app.main:app).');
+    if (statusLog) {
+      statusLog.innerText = '❌ Error al renderizar video multimedia. Revisa la consola para más detalles.';
+    }
+    if (ffmpegCard) {
+      ffmpegCard.className = 'agent-card';
+      ffmpegCard.querySelector('.agent-status-badge').innerText = 'Falla';
+    }
+  } finally {
+    btn.disabled = false;
+    btn.innerHTML = '<i class="fa-solid fa-wand-magic-sparkles"></i> <span>Renderizar Video MP4</span>';
+  }
 }

@@ -1,52 +1,52 @@
 from typing import List, Optional, Literal
 from pydantic import BaseModel, Field
 
-# --- Insumos del Docente ---
+# --- Entrada del Usuario ---
 class ClassInput(BaseModel):
-    learning_objective: str = Field(description="Objetivo de Aprendizaje (OA)")
-    education_level: str = Field(default="Secundaria (1º - 4º)", description="Nivel escolar o universitario")
-    duration_minutes: int = Field(default=20, description="Duración estimada en minutos (15-20 min para MVP)")
-    approach: str = Field(default="Clase Invertida (Flipped Classroom)", description="Enfoque didáctico")
-    context: str = Field(default="Aula con proyector y trabajo en parejas", description="Contexto del curso")
+    learning_objective: str = Field(description="Objetivo de Aprendizaje (OA) principal a abordar")
+    education_level: str = Field(description="Nivel educativo según sistema chileno (Básica 1º-4º, Básica 5º-8º, Media 1º-4º, Educación Superior)")
+    duration_minutes: int = Field(default=15, description="Duración total estimada de la clase en minutos (MVP: 15-20 min)")
+    approach: str = Field(default="Clase Invertida (Flipped Classroom)", description="Enfoque pedagógico rector")
+    context: Optional[str] = Field(default=None, description="Contexto del aula y recursos tecnológicos disponibles")
 
 # --- Fase 1: Planificación Pedagógica ---
 class DidacticStage(BaseModel):
-    stage_name: Literal["Inicio", "Desarrollo", "Cierre"] = Field(description="Momento de la clase")
-    duration_min: int = Field(description="Minutos asignados a este momento")
-    activity_title: str = Field(description="Nombre de la actividad central")
-    description: str = Field(description="Detalle pedagógico de la actividad")
-    pedagogical_intent: str = Field(description="Intención formativa / metacognitiva")
+    stage_name: Literal["Inicio", "Desarrollo", "Cierre"] = Field(description="Nombre de la etapa didáctica")
+    duration_min: int = Field(description="Duración en minutos de esta etapa")
+    activity_title: str = Field(description="Título descriptivo de la actividad")
+    description: str = Field(description="Detalle de lo que realizan docente y estudiantes")
+    pedagogical_intent: str = Field(description="Propósito formativo específico de la etapa")
 
 class PedagogicalPlan(BaseModel):
-    stages: List[DidacticStage] = Field(description="Secuencia de las 3 etapas didácticas")
-    methodology_applied: str = Field(description="Metodología (ABP, 5E, STEM, etc.)")
-    prerequisites: List[str] = Field(default_factory=list, description="Saberes previos requeridos")
-    estimated_total_time: int = Field(description="Suma total de minutos de la sesión")
+    estimated_total_time: int = Field(description="Suma total de minutos de las etapas")
+    methodology_applied: str = Field(description="Metodología adaptada al objetivo")
+    prerequisites: List[str] = Field(description="Saberes previos requeridos")
+    stages: List[DidacticStage] = Field(description="Las 3 etapas secuenciales obligatorias")
 
-# --- Fase 2: Contenidos Teóricos y Guion ---
+# --- Fase 2: Guion Teórico y Contenidos ---
 class KeyTerm(BaseModel):
     term: str = Field(description="Término o concepto técnico")
-    definition: str = Field(description="Definición comprensible adaptada al nivel educativo")
+    definition: str = Field(description="Definición precisa adaptada a la edad del público objetivo")
 
 class TheoryContent(BaseModel):
     core_concept: str = Field(description="Título del concepto principal")
-    core_explanation: str = Field(description="Explicación teórica rigurosa y clara")
-    real_world_analogy: str = Field(description="Analogía de la vida cotidiana adaptada a la edad")
-    voiceover_script: str = Field(description="Guion de locución para el audio de la clase")
-    glossary: List[KeyTerm] = Field(description="Glosario de conceptos clave")
+    core_explanation: str = Field(description="Explicación teórica rigurosa, clara y adaptada a la edad")
+    real_world_analogy: str = Field(description="Analogía de la vida cotidiana potente y adaptada a los intereses del estudiante")
+    voiceover_script: str = Field(description="Guion de locución fluido en español para el audio de la clase")
+    glossary: List[KeyTerm] = Field(description="Glosario de conceptos clave en español")
 
-# --- Fase 3: Escaleta Audiovisual y Prompts ---
+# --- Fase 3: Escaleta Audiovisual y Prompts (100% Español) ---
 class Scene(BaseModel):
     scene_number: int = Field(description="Número correlativo de la escena")
     duration_seconds: int = Field(description="Duración en segundos")
-    voiceover: str = Field(description="Locución hablada en off")
-    visual_description: str = Field(description="Elementos visuales y composición en pantalla")
-    on_screen_text: str = Field(description="Texto visible superpuesto")
-    ai_image_prompt: str = Field(description="Prompt en inglés para el generador de imágenes de IA")
+    voiceover: str = Field(description="Locución hablada en off en español")
+    visual_description: str = Field(description="Elementos visuales y composición en pantalla en español")
+    on_screen_text: str = Field(description="Texto clave visible en pantalla en español (máximo 8 palabras)")
+    ai_image_prompt: str = Field(description="Descripción visual detallada en español para ilustrar la escena didáctica")
 
 class AudiovisualStoryboard(BaseModel):
-    video_title: str = Field(description="Título atractivo de la clase multimedia")
-    target_audience: str = Field(description="Público objetivo")
+    video_title: str = Field(description="Título atractivo de la clase multimedia en español")
+    target_audience: str = Field(description="Público objetivo y nivel escolar")
     total_duration_seconds: int = Field(description="Duración total del video en segundos")
     scenes: List[Scene] = Field(description="Lista de escenas de la escaleta")
 
