@@ -3,15 +3,15 @@ from pathlib import Path
 from dotenv import load_dotenv
 from pydantic import BaseModel, Field
 
-# Cargar variables de entorno: primero raíz, y luego backend si existe
+# Cargar variables de entorno: se prioriza el .env central de la raíz del proyecto
 root_env = Path(__file__).resolve().parent.parent.parent.parent / ".env"
 backend_env = Path(__file__).resolve().parent.parent.parent / ".env"
 
 if root_env.exists():
     load_dotenv(root_env, override=True)
-if backend_env.exists():
+elif backend_env.exists():
     load_dotenv(backend_env, override=True)
-if not root_env.exists() and not backend_env.exists():
+else:
     load_dotenv()
 
 class Settings(BaseModel):
