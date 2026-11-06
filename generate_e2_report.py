@@ -233,19 +233,19 @@ def create_e2_document():
         ("   6.1 Requisitos y criterios de aceptación", "6"),
         ("   6.2 Alcance, restricciones y supuestos", "7"),
         ("   6.3 Plan de trabajo y gestión", "7"),
-        ("7. Diseño y arquitectura de la solución", "7"),
-        ("8. Implementación y producto mínimo viable", "8"),
-        ("9. Evaluación y resultados", "8"),
-        ("   9.1 Criterios, métricas y protocolo de evaluación", "8"),
-        ("   9.2 Resultados técnicos", "9"),
-        ("   9.3 Valor, impacto y limitaciones", "9"),
-        ("10. Discusión", "9"),
-        ("11. Conclusiones y trabajo futuro", "9"),
-        ("Referencias", "10"),
-        ("Anexos", "10"),
-        ("   Anexo A. Declaración de uso de inteligencia artificial", "10"),
-        ("   Anexo B. Contribución individual", "10"),
-        ("   Anexo C. Evidencias complementarias de E3", "10")
+        ("7. Diseño y arquitectura de la solución", "8"),
+        ("8. Implementación y producto mínimo viable", "9"),
+        ("9. Evaluación y resultados", "9"),
+        ("   9.1 Criterios, métricas y protocolo de evaluación", "9"),
+        ("   9.2 Resultados técnicos", "10"),
+        ("   9.3 Valor, impacto y limitaciones", "10"),
+        ("10. Discusión", "10"),
+        ("11. Conclusiones y trabajo futuro", "10"),
+        ("Referencias", "11"),
+        ("Anexos", "11"),
+        ("   Anexo A. Declaración de uso de inteligencia artificial", "11"),
+        ("   Anexo B. Contribución individual", "11"),
+        ("   Anexo C. Evidencias complementarias de E3", "12")
     ]
     for itm, pg in index_p2:
         p_it = doc.add_paragraph()
@@ -283,8 +283,8 @@ def create_e2_document():
     p_f = doc.add_paragraph()
     r_fi = p_f.add_run("Figura 1: Arquitectura del Sistema Multiagente DAG por Fases con Loops Acotados")
     r_fi.font.size = Pt(8.5)
-    dots = max(3, 72 - len(r_fi.text) - len("Sección 7"))
-    r_dots = p_f.add_run(" " + "." * dots + " Sección 7")
+    dots = max(3, 72 - len(r_fi.text) - len("Sección 7 (Pág. 8)"))
+    r_dots = p_f.add_run(" " + "." * dots + " Sección 7 (Pág. 8)")
     r_dots.font.size = Pt(8.5)
     r_dots.font.color.rgb = RGBColor(100, 116, 139)
 
@@ -521,14 +521,43 @@ def create_e2_document():
                 set_cell_background(cell_2, "F8FAFC")
             cell_1.paragraphs[0].runs[0].font.bold = True
 
-    add_h("7. Diseño y arquitectura de la solución", size=11.5, before=2.5, after=1)
-    add_p("La arquitectura del sistema se diseña como un Grafo Acíclico Dirigido (DAG) desacoplado en dos grandes bloques: la Orquestación Inteligente (LangGraph) y el Motor Determinista Multimedia (FFmpeg/MoviePy). Flujo de Estados y Componentes:", size=8.5)
+    doc.add_page_break()
+
+    # =========================================================================
+    # PÁGINA 8: 7. DISEÑO Y ARQUITECTURA DE LA SOLUCIÓN (FIGURA 1)
+    # =========================================================================
+    add_h("7. Diseño y arquitectura de la solución", size=12, before=0, after=2)
+    add_p(
+        "La arquitectura del sistema se diseña como un Grafo Acíclico Dirigido (DAG) desacoplado en dos grandes bloques: "
+        "la Orquestación Inteligente basada en agentes cognitivos (LangGraph) y el Motor Determinista Multimedia (MoviePy + Edge-TTS). "
+        "A continuación, la Figura 1 detalla la topología de los agentes especializados, los entregables pedagógicos generados "
+        "en cada fase y el bucle de retroalimentación con control estricto de calidad:",
+        size=8.5
+    )
+
+    # Inserción de Figura 1: Diagrama de Agentes
+    p_img = doc.add_paragraph()
+    p_img.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p_img.paragraph_format.space_before = Pt(2)
+    p_img.paragraph_format.space_after = Pt(2)
+    run_img = p_img.add_run()
+    run_img.add_picture("figura1_arquitectura_agentes.png", width=Inches(4.9))
+
+    p_cap = doc.add_paragraph()
+    p_cap.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    p_cap.paragraph_format.space_before = Pt(0)
+    p_cap.paragraph_format.space_after = Pt(2)
+    r_cap = p_cap.add_run("Figura 1: Arquitectura del Sistema Multiagente DAG por Fases con Loops Acotados y Productos Didácticos.")
+    r_cap.font.size = Pt(8)
+    r_cap.font.italic = True
+    r_cap.font.color.rgb = RGBColor(100, 116, 139)
 
     doc.add_page_break()
 
     # =========================================================================
-    # PÁGINA 8: 7. FLUJO (1-4), 8. IMPLEMENTACIÓN, 9. EVALUACIÓN Y TABLA 3
+    # PÁGINA 9: FLUJO (1-4), 8. IMPLEMENTACIÓN, 9. EVALUACIÓN Y TABLA 3
     # =========================================================================
+    add_h("Flujo de Estados y Componentes del DAG Multiagente", size=10.5, before=0, after=2)
     flujo_p8 = [
         ("1. Entrada del Usuario:", "El docente ingresa el OA, nivel, duración y contexto a través de la interfaz web."),
         ("2. Orquestador LangGraph:", "Inicializa el estado global JSON y transiciona secuencialmente por la Fase 1 (Planificación), Fase 2 (Contenido & Guion) y Fase 3 (Escaleta Audiovisual)."),
@@ -593,7 +622,7 @@ def create_e2_document():
                 set_cell_background(c3, "F8FAFC")
             c2.paragraphs[0].runs[0].font.bold = True
 
-    add_p("El protocolo de evaluación combina la verificación automatizada del Agente Revisor con pruebas funcionales de renderizado multimedia. A continuación se presenta la Tabla 2 con los indicadores de desempeño:", size=8.5)
+    add_p("El protocolo de evaluación combina la verificación automatizada del Agente Revisor con pruebas funcionales de renderizado multimedia. A continuación se presenta la Tabla 4 con los indicadores de desempeño:", size=8.5)
 
     doc.add_page_break()
 
@@ -656,16 +685,16 @@ def create_e2_document():
     add_p("El proyecto ha demostrado con éxito que la orquestación multiagente mediante grafos acíclicos dirigidos (DAG) resuelve efectivamente el problema de desalineación pedagógica de la IA en la creación de recursos didácticos. Se cumplieron los objetivos de acotar el MVP a clases multimedia breves, diseñar la matriz de 7 criterios para el Agente Revisor e integrar la orquestación con LangGraph y MoviePy.")
     add_p("Trabajo Futuro:")
     add_p("1. Integrar motores de clonación de voz sintética de alta fidelidad (ElevenLabs / Edge-TTS chileno consolidado).")
+    add_p("2. Expandir los exportadores para soportar paquetes SCORM e integraciones nativas con Canvas y Moodle.")
+    add_p("3. Incorporar modelos de IA especializados por disciplina (Ciencias, Humanidades, Matemáticas).")
 
     doc.add_page_break()
 
     # =========================================================================
-    # PÁGINA 10: 11. CONT., REFERENCIAS, ANEXOS A Y B (TABLA 5)
-    # =========================================================================
-    add_p("2. Expandir los exportadores para soportar paquetes SCORM e integraciones nativas con Canvas y Moodle.")
-    add_p("3. Incorporar modelos de IA especializados por disciplina (Ciencias, Humanidades, Matemáticas).")
+    # PÁGINA 11: REFERENCIAS, ANEXOS A Y B (TABLA 5)
+    # ==========================================================================
 
-    add_h("Referencias", size=12, before=3, after=1.5)
+    add_h("Referencias", size=12, before=0, after=1.5)
     refs_text = [
         "[1] J. Biggs y C. Tang, Teaching for quality learning at university, 4th ed. Berkshire, UK: McGraw-Hill Education, 2011.",
         "[2] R. E. Mayer, The Cambridge handbook of multimedia learning, 2nd ed. Cambridge, UK: Cambridge University Press, 2014.",
@@ -692,7 +721,7 @@ def create_e2_document():
     )
 
     add_h("Anexo B. Contribución individual", size=10.5, before=2, after=1)
-    add_p("A continuación se presenta la Tabla 3 completada con el desglose de responsabilidades y evidencias del equipo de trabajo:")
+    add_p("A continuación se presenta la Tabla 5 completada con el desglose de responsabilidades y evidencias del equipo de trabajo:")
 
     # Tabla 5: Contribución Individual
     t5 = doc.add_table(rows=4, cols=3)
@@ -721,14 +750,14 @@ def create_e2_document():
                 if col_idx == 0:
                     cell.paragraphs[0].runs[0].font.bold = True
 
-    add_h("Anexo C. Evidencias complementarias de E3", size=10.5, before=2.5, after=1)
-    add_p("A continuación se presenta la Tabla 4 completada con el registro de enlaces y ubicación de los entregables del proyecto:")
-
     doc.add_page_break()
 
     # =========================================================================
-    # PÁGINA 11: TABLA 6 (EVIDENCIAS COMPLEMENTARIAS)
+    # PÁGINA 12: ANEXO C (TABLA 6: EVIDENCIAS COMPLEMENTARIAS) Y FIRMAS
     # =========================================================================
+    add_h("Anexo C. Evidencias complementarias de E3", size=11, before=0, after=1.5)
+    add_p("A continuación se presenta la Tabla 6 completada con el registro de enlaces y ubicación de los entregables del proyecto:")
+
     t6 = doc.add_table(rows=6, cols=3)
     t6.alignment = WD_TABLE_ALIGNMENT.CENTER
     t6_data = [
