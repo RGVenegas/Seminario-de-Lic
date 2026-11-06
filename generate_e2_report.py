@@ -229,8 +229,8 @@ def create_e2_document():
     # =========================================================================
     index_p2 = [
         ("5. Metodología", "6"),
-        ("6. Requisitos, alcance y planificación", "6"),
-        ("   6.1 Requisitos y criterios de aceptación", "6"),
+        ("6. Requisitos, alcance y planificación", "7"),
+        ("   6.1 Requisitos y criterios de aceptación", "7"),
         ("   6.2 Alcance, restricciones y supuestos", "7"),
         ("   6.3 Plan de trabajo y gestión", "7"),
         ("7. Diseño y arquitectura de la solución", "8"),
@@ -262,11 +262,12 @@ def create_e2_document():
     tables_idx = [
         ("Tabla 0: Metadatos Institucionales del Proyecto", "Portada"),
         ("Tabla 1: Matriz Causal (Monolítico vs. DAG Multiagente)", "Sección 2.1"),
-        ("Tabla 2: Matriz de Delimitación de Alcance para MVP", "Sección 6.2"),
-        ("Tabla 3: Matriz de Auditoría del Agente Revisor (7 Criterios)", "Sección 9.1"),
-        ("Tabla 4: Indicadores y Métricas del Protocolo de Evaluación", "Sección 9.1"),
-        ("Tabla 5: Matriz de Contribución Individual por Integrante", "Anexo B"),
-        ("Tabla 6: Evidencias Complementarias del Proyecto (E3)", "Anexo C")
+        ("Tabla 2: Pipeline Metodológico de Agentes y Síntesis Multimedia", "Sección 5"),
+        ("Tabla 3: Matriz de Delimitación de Alcance para MVP", "Sección 6.2"),
+        ("Tabla 4: Matriz de Auditoría del Agente Revisor (7 Criterios)", "Sección 9.1"),
+        ("Tabla 5: Indicadores y Métricas del Protocolo de Evaluación", "Sección 9.3"),
+        ("Tabla 6: Matriz de Contribución Individual por Integrante", "Anexo B"),
+        ("Tabla 7: Evidencias Complementarias del Proyecto (E3)", "Anexo C")
     ]
     for t_it, t_pg in tables_idx:
         p_t = doc.add_paragraph()
@@ -420,60 +421,92 @@ def create_e2_document():
         "determinista de video desacoplado de las alucinaciones de IA."
     )
 
-    add_h("5. Metodología", size=12, before=2.5, after=1.5)
+    add_h("5. Metodología", size=12, before=2, after=1)
     add_p(
-        "El proyecto adopta una metodología de ingeniería de software orientada a componentes modulares. El "
-        "desarrollo se estructura en un pipeline secuencial de 3 fases de generación y 1 fase de auditoría global:\n"
-        "• Fase 1 (Planificación Pedagógica): Recibe el OA, nivel educativo (MINEDUC) y duración. Genera la estructura temporal "
-        "por momentos (Inicio, Desarrollo, Cierre).\n"
-        "• Fase 2 (Desarrollo Teórico & Guion): Toma la planificación aprobada y redacta los módulos didácticos, "
-        "analogías, glosario y locución hablada.\n"
-        "• Fase 3 (Producción Audiovisual): Toma la planificación y el guion teórico para construir la escaleta escena "
-        "por escena, definiendo tiempos y prompts visuales 100% en español.\n"
-        "• Fase 4 (Auditoría Global QC): El Agente Revisor evalúa la propuesta didáctica mediante 7 criterios. Si el "
-        "score es mayor o igual al 85%, la salida se aprueba y se deriva al ensamblador determinista; de lo contrario, "
-        "se genera un reporte de observaciones y se re-envía al agente correspondiente.\n"
-        "Loops Acotados de 4 Pasos: Cada una de las 3 fases ejecuta internamente el ciclo: Producir ➔ Verificar ➔ "
-        "Corregir ➔ Aprobar, con un límite máximo de 2 iteraciones."
+        "El proyecto adopta una metodología de ingeniería de software orientada a componentes modulares. El desarrollo "
+        "se estructura en un pipeline desacoplado que combina agentes cognitivos secuenciales en LangGraph con un motor "
+        "determinista multimedia en MoviePy y Edge-TTS. La Tabla 2 resume la matriz metodológica de etapas, insumos, "
+        "procesamiento didáctico, artefactos generados y mecanismos de control de calidad aplicados:",
+        size=8.2
     )
 
-    add_h("6. Requisitos, alcance y planificación", size=12, before=2.5, after=1.5)
-    add_p("Se presentan los requisitos del sistema, la delimitación formal del alcance para el periodo de desarrollo (MVP) y la hoja de ruta de los hitos del proyecto.")
+    # Tabla 2: Metodología
+    t_metod = doc.add_table(rows=8, cols=5)
+    t_metod.alignment = WD_TABLE_ALIGNMENT.CENTER
+    t_metod_data = [
+        ("Fase / Módulo", "Componente", "Insumo (Input)", "Técnica / Procesamiento", "Salida y Control de Calidad"),
+        ("Fase 1: Planificación", "Agente Pedagógico (LLM)", "OA, Nivel Educativo, Duración", "Dosificación temporal por momentos didácticos (Inicio, Desarrollo, Cierre)", "LessonPlan (JSON) · Ciclo 4 pasos (máx. 2 iteraciones)"),
+        ("Fase 2: Contenido", "Agente Teórico (LLM)", "Planificación aprobada", "Redacción conceptual rigurosa, analogías cotidianas y glosario etario", "TheoreticalScript (JSON) · Control de rigor y vocabulario"),
+        ("Fase 3: Escaleta", "Agente Audiovisual (LLM)", "Plan + Guion aprobados", "Guionización escena por escena, locución hablada y prompts visuales", "AudiovisualStoryboard (JSON) · Sincronía locución-pantalla"),
+        ("Fase 4: Auditoría (QC)", "Agente Revisor (LLM)", "Escaleta consolidada", "Auditoría analítica con 7 criterios didácticos y comunicacionales ponderados", "AuditReport · Umbral Score >= 85% (Rechazo genera feedback)"),
+        ("Síntesis de Voz (TTS)", "Motor Edge-TTS", "Locución por escena (voiceover)", "Síntesis neural de voz en español de alta naturalidad y fluidez", "Pistas .mp3 individuales · Medición de duración real"),
+        ("Ilustraciones con IA", "Stable Diffusion + PIL", "Prompts visuales en inglés", "Inferencia generativa 16:9 (1280x720) y estampado Lower-Third", "Imágenes .jpg compuestas · Prompts negativos anti-deformación"),
+        ("Ensamblado Multimedia", "MoviePy / FFmpeg", "Audios .mp3 + Imágenes .jpg", "Concatenación continua cuadro a cuadro desacoplada de código LLM", "Video educativo MP4 (1280x720 H.264) continuo garantizado")
+    ]
+    col_widths_m = [Inches(1.2), Inches(1.2), Inches(1.2), Inches(1.8), Inches(1.6)]
+    for r_i, r_data in enumerate(t_metod_data):
+        row = t_metod.rows[r_i]
+        for c_i, val in enumerate(r_data):
+            cell = row.cells[c_i]
+            cell.text = val
+            cell.width = col_widths_m[c_i]
+            set_cell_margins(cell, top=25, bottom=25, left=35, right=35)
+            p_cell = cell.paragraphs[0]
+            p_cell.runs[0].font.size = Pt(7.2)
+            if r_i == 0:
+                set_cell_background(cell, "003366")
+                p_cell.runs[0].font.bold = True
+                p_cell.runs[0].font.color.rgb = RGBColor(255, 255, 255)
+            else:
+                if r_i % 2 == 1:
+                    set_cell_background(cell, "F8FAFC")
+                if c_i == 0:
+                    p_cell.runs[0].font.bold = True
 
-    add_h("6.1 Requisitos y criterios de aceptación", size=10.5, before=2, after=1.5)
-    add_p("• Requisitos Funcionales:")
-    add_p(" - RF1: Ingreso de parámetros didácticos (OA, Nivel Educativo chileno MINEDUC, Duración en minutos, Enfoque).", size=8.5)
-    add_p(" - RF2: Orquestación DAG secuencial con LangGraph garantizando dependencias de salida inmutables.", size=8.5)
+    add_p(
+        "Loops Acotados de 4 Pasos: Cada una de las 3 fases cognitivas ejecuta internamente el ciclo Producir ➔ Verificar ➔ "
+        "Corregir ➔ Aprobar, con un límite estricto de máximo 2 iteraciones para prevenir bucles divergentes.",
+        size=7.8
+    )
 
     doc.add_page_break()
 
     # =========================================================================
-    # PÁGINA 7: 6.1 (CONT.), 6.2, 6.3 HITOS Y TABLA 2 (EXACTAMENTE COMO E1)
+    # PÁGINA 7: 6. REQUISITOS (RF Y RNF COMPLETOS), 6.2 ALCANCE (TABLA 3) Y 6.3 HITOS
     # =========================================================================
-    add_p(" - RF3: Ciclos de revisión con un máximo de 2 iteraciones por fase.", size=8.5)
-    add_p(" - RF4: Evaluación cuantitativa mediante el Agente Revisor con scorecard de 7 criterios (Umbral >= 85%).", size=8.5)
-    add_p(" - RF5: Renderizado de video MP4 y exportación de assets editables mediante FFmpeg / MoviePy / Edge-TTS.", size=8.5)
-    add_p("• Requisitos No Funcionales:")
-    add_p(" - RNF1 (Modularidad): Código desacoplado en FastAPI + LangGraph en Python 3.12.", size=8.5)
-    add_p(" - RNF2 (Concurrencia): Procesamiento asíncrono de tareas pesadas de renderizado.", size=8.5)
-    add_p(" - RNF3 (Usabilidad): Interfaz web intuitiva en HTML5/CSS Glassmorphism para revisión docente.", size=8.5)
+    add_h("6. Requisitos, alcance y planificación", size=12, before=0, after=1.5)
+    add_p("Se presentan los requisitos del sistema, la delimitación formal del alcance para el MVP y la hoja de ruta actualizada de hitos.", size=8.2)
+
+    add_h("6.1 Requisitos y criterios de aceptación", size=10.5, before=1.5, after=1)
+    add_p("• Requisitos Funcionales:", size=8.2)
+    add_p("  - RF1: Ingreso de parámetros didácticos (OA, Nivel Educativo, Duración en minutos, Enfoque pedagógico).", size=8.0)
+    add_p("  - RF2: Orquestación DAG secuencial con LangGraph garantizando dependencias de salida inmutables.", size=8.0)
+    add_p("  - RF3: Ciclos de revisión con un límite estricto de máximo 2 iteraciones por fase.", size=8.0)
+    add_p("  - RF4: Evaluación cuantitativa mediante el Agente Revisor con matriz de 7 criterios (Umbral Score >= 85%).", size=8.0)
+    add_p("  - RF5: Renderizado de video MP4 continuo y exportación de assets editables mediante MoviePy y Edge-TTS.", size=8.0)
+    add_p("• Requisitos No Funcionales:", size=8.2)
+    add_p("  - RNF1 (Modularidad): Código desacoplado en FastAPI + LangGraph en Python 3.12 con tipado estricto Pydantic.", size=8.0)
+    add_p("  - RNF2 (Concurrencia): Procesamiento asíncrono de tareas de inferencia y renderizado determinista.", size=8.0)
+    add_p("  - RNF3 (Usabilidad): Interfaz web moderna con estética Glassmorphism para revisión docente en tiempo real.", size=8.0)
 
     add_h("6.2 Alcance, restricciones y supuestos", size=10.5, before=2, after=1)
-    add_p("A continuación se presenta la Tabla 1 completada con la especificación del alcance incluido y excluido para la primera versión (MVP):", size=8.5)
+    add_p("A continuación se presenta la Tabla 3 completada con la especificación del alcance incluido y excluido para la primera versión (MVP):", size=8.5)
 
-    add_h("6.3 Plan de trabajo y gestión", size=10.5, before=2, after=1)
-    add_p("El proyecto se estructura en 10 hitos clave de ejecución (Actualizados para E2):", size=8.5)
+    add_h("6.3 Plan de trabajo y gestión", size=10.5, before=1.5, after=1)
+    add_p("El proyecto se estructura en 12 hitos clave de ejecución distribuidos entre las entregas E1, E2 y E3:", size=8.0)
     hitos_p7 = [
         ("• Hito 1 (Completado):", "Definición de arquitectura DAG secuencial y acotamiento de alcance a MVP (Clase Multimedia Breve)."),
         ("• Hito 2 (Completado):", "Especificación detallada de agentes, loops de 4 pasos y matriz de 7 criterios del Agente Revisor."),
-        ("• Hito 3 (Completado):", "Prototipo web interactivo (HTML5/CSS) y simulación del flujo de estados con selector MINEDUC."),
+        ("• Hito 3 (Completado):", "Prototipo web interactivo (HTML5/CSS) y simulación del flujo de estados."),
         ("• Hito 4 (Completado en E2):", "Configuración del backend en FastAPI con Python 3.12."),
         ("• Hito 5 (Completado en E2):", "Programación del grafo de estados mutables y nodos de agentes con LangGraph."),
         ("• Hito 6 (Completado en E2):", "Integración de prompts estructurados por fase y esquemas JSON con Pydantic."),
         ("• Hito 7 (Completado en E2):", "Desarrollo de los ciclos acotados de revisión (Producir ➔ Verificar ➔ Corregir ➔ Aprobar)."),
         ("• Hito 8 (Completado en E2):", "Programación del módulo determinista de video (MoviePy / Edge-TTS / AI Horde) para la renderización MP4."),
         ("• Hito 9 (Completado en E2):", "Pruebas de integración, evaluación del Agente Revisor y optimización de latencia."),
-        ("• Hito 10 (En progreso / E3):", "Pruebas con docentes en aula real, recopilación de feedback y defensa del trabajo de titulación.")
+        ("• Hito 10 (En progreso / E3):", "Mejora de la Calidad de imágenes creadas por la IA para un mejor entendimiento y visualización de la clase."),
+        ("• Hito 11 (E3):", "Empaquetado multimodal y exportación de activos didácticos editables (guiones, audios, imágenes y formato SCORM/HTML5)."),
+        ("• Hito 12 (E3):", "Optimización de rendimiento (paralelización asíncrona de síntesis multimedia) y preparación para la defensa final de titulación.")
     ]
     for ht, hd in hitos_p7:
         p_h = doc.add_paragraph()
@@ -495,10 +528,10 @@ def create_e2_document():
     t2_data = [
         ("Elemento", "Contenido"),
         ("Usuarios / actores", "Docentes de educación secundaria y terciaria, diseñadores instruccionales y centros de innovación educativa."),
-        ("Alcance incluido", "Generación secuencial de una clase multimedia breve (15-20 min), guion pedagógico, escaleta escena por escena, reporte QC y video MP4 ensamblado con voz neural chilena."),
+        ("Alcance incluido", "Generación secuencial de una clase multimedia breve (15-20 min), guion pedagógico, escaleta escena por escena, reporte QC, ilustraciones educativas con IA y video MP4 continuo ensamblado con voz neural en español."),
         ("Alcance excluido", "Exportación SCORM/PPTX masiva, gestión de usuarios/autenticación completa y persistencia en base de datos de producción."),
-        ("Riesgos principales", "Bucles infinitos en loops de corrección (mitigado con máximo 2 iteraciones) y latencia en llamadas API (mitigado con esquemas JSON)."),
-        ("Plan de trabajo", "Desarrollo modular en 10 hitos desde la definición conceptual hasta la validación con docentes en aula real.")
+        ("Riesgos principales", "Bucles infinitos en loops de corrección (mitigado con máx. 2 iteraciones), latencia de APIs (mitigado con JSON estricto) e inconsistencias visuales en modelos de difusión abiertos (mitigado con prompts negativos y optimización visual en E3)."),
+        ("Plan de trabajo", "Desarrollo modular estructurado en 12 hitos, abarcando desde la definición de la arquitectura DAG y pipeline multiagente, hasta la optimización de fidelidad conceptual de imágenes con IA, empaquetado de recursos y defensa final de titulación (E3).")
     ]
     for row_idx, (c1, c2) in enumerate(t2_data):
         row = t2.rows[row_idx]
@@ -622,7 +655,7 @@ def create_e2_document():
                 set_cell_background(c3, "F8FAFC")
             c2.paragraphs[0].runs[0].font.bold = True
 
-    add_p("El protocolo de evaluación combina la verificación automatizada del Agente Revisor con pruebas funcionales de renderizado multimedia. A continuación se presenta la Tabla 4 con los indicadores de desempeño:", size=8.5)
+    add_p("El protocolo de evaluación combina la verificación automatizada del Agente Revisor con pruebas funcionales de renderizado multimedia. A continuación se presenta la Tabla 5 con los indicadores de desempeño:", size=8.5)
 
     doc.add_page_break()
 
@@ -684,9 +717,10 @@ def create_e2_document():
     add_h("11. Conclusiones y trabajo futuro", size=12, before=2.5, after=1.5)
     add_p("El proyecto ha demostrado con éxito que la orquestación multiagente mediante grafos acíclicos dirigidos (DAG) resuelve efectivamente el problema de desalineación pedagógica de la IA en la creación de recursos didácticos. Se cumplieron los objetivos de acotar el MVP a clases multimedia breves, diseñar la matriz de 7 criterios para el Agente Revisor e integrar la orquestación con LangGraph y MoviePy.")
     add_p("Trabajo Futuro:")
-    add_p("1. Integrar motores de clonación de voz sintética de alta fidelidad (ElevenLabs / Edge-TTS chileno consolidado).")
+    add_p("1. Integrar motores de clonación de voz sintética de alta fidelidad (ElevenLabs / Edge-TTS neural en español).")
     add_p("2. Expandir los exportadores para soportar paquetes SCORM e integraciones nativas con Canvas y Moodle.")
     add_p("3. Incorporar modelos de IA especializados por disciplina (Ciencias, Humanidades, Matemáticas).")
+    add_p("4. Optimización del motor de difusión para eliminar artefactos visuales (Attribute Binding Failure / Concept Bleeding) en las ilustraciones generadas por IA (Hito 10 / E3).")
 
     doc.add_page_break()
 
@@ -721,7 +755,7 @@ def create_e2_document():
     )
 
     add_h("Anexo B. Contribución individual", size=10.5, before=2, after=1)
-    add_p("A continuación se presenta la Tabla 5 completada con el desglose de responsabilidades y evidencias del equipo de trabajo:")
+    add_p("A continuación se presenta la Tabla 6 completada con el desglose de responsabilidades y evidencias del equipo de trabajo:")
 
     # Tabla 5: Contribución Individual
     t5 = doc.add_table(rows=4, cols=3)
@@ -730,7 +764,7 @@ def create_e2_document():
         ("Integrante", "Responsabilidades / contribuciones", "Evidencias"),
         ("Rodrigo Venegas", "Líder de Arquitectura DAG, configuración de LangGraph, integración multi-proveedor (Gemini/OpenAI/Quotas), motor FastAPI y test_multimedia.py.", "Repositorio GitHub / Commits Backend y Pipeline DAG"),
         ("Pablo Loncon", "Diseño de Prompts por Fase, desarrollo del Agente Revisor QC (7 criterios), adaptación a niveles MINEDUC y prototipo frontend Glassmorphism.", "Repositorio GitHub / Schemas Pydantic y UI Prototype"),
-        ("Francisco Espinoza", "Integración del ensamblador determinista de video (MoviePy), síntesis Edge-TTS chilena, conector AI Horde y sincronización de subtítulos.", "Repositorio GitHub / Media Engine y Videos MP4")
+        ("Francisco Espinoza", "Integración del ensamblador determinista de video (MoviePy), síntesis de voz neural en español (Edge-TTS), conector AI Horde y sincronización de subtítulos.", "Repositorio GitHub / Media Engine y Videos MP4")
     ]
     for row_idx, (c1, c2, c3) in enumerate(t5_data):
         row = t5.rows[row_idx]
@@ -756,7 +790,7 @@ def create_e2_document():
     # PÁGINA 12: ANEXO C (TABLA 6: EVIDENCIAS COMPLEMENTARIAS) Y FIRMAS
     # =========================================================================
     add_h("Anexo C. Evidencias complementarias de E3", size=11, before=0, after=1.5)
-    add_p("A continuación se presenta la Tabla 6 completada con el registro de enlaces y ubicación de los entregables del proyecto:")
+    add_p("A continuación se presenta la Tabla 7 completada con el registro de enlaces y ubicación de los entregables del proyecto:")
 
     t6 = doc.add_table(rows=6, cols=3)
     t6.alignment = WD_TABLE_ALIGNMENT.CENTER
