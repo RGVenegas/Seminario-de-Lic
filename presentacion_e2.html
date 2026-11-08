@@ -597,6 +597,9 @@
     </div>
     <div class="header-controls">
       <div class="timer-badge" id="timer">⏱️ 00:00</div>
+      <a href="guion_presentacion.html" target="_blank" class="btn-icon" style="text-decoration: none;" title="Abrir guion oficial de defensa oral">
+        📜 Guion Completo
+      </a>
       <button class="btn-icon" id="btn-notes" title="Abrir notas del orador (Tecla N)">
         🎤 Notas (N)
       </button>
@@ -802,13 +805,14 @@
 
           <div style="text-align: left; background: rgba(0,0,0,0.3); padding: 14px; border-radius: 10px; margin-top: 10px;">
             <div style="font-weight: 700; color: var(--cyan-400); font-size: 0.85rem; margin-bottom: 6px;">
-              Protocolo para la Demostración:
+              Protocolo Oficial de Demostración:
             </div>
             <ol style="font-size: 0.82rem; color: var(--slate-300); padding-left: 18px; line-height: 1.5;">
-              <li>Ingresar OA: <em>«La función del sistema circulatorio»</em>.</li>
-              <li>Configurar Nivel: <em>Educación Básica</em> · Duración: <em>15 min</em>.</li>
-              <li>Observar progresión de nodos en LangGraph y Score QC (&ge; 85%).</li>
-              <li>Reproducir el video generado con subtítulos sincronizados.</li>
+              <li>Tema / OA: <em>«Cuidado y tenencia responsable de mascotas»</em>.</li>
+              <li>Nivel Educativo: <em>Enseñanza Media</em> (o <em>Básica 5° a 8°</em>) · <em>15 min</em>.</li>
+              <li>Calibración etaria: lenguaje reflexivo y maduro (prohibida jerga como <em>'lag mental'</em>).</li>
+              <li>Observar ejecución LangGraph y Score QC (&ge; 85%).</li>
+              <li>Reproducir video MP4: voz neural fluida y subtítulos sincronizados.</li>
             </ol>
           </div>
         </div>
@@ -1038,10 +1042,14 @@
 
       // Slide 5
       `<strong>Expositor 1 (Rodrigo - Operando la Demo):</strong><br>
-      «A continuación, pasamos a la demostración en vivo de nuestro MVP. Aquí vemos la interfaz web conectada a nuestra API en FastAPI.<br>
-      Ingresamos el Tema 'La función del sistema circulatorio', seleccionamos nivel 'Educación Básica' y 15 minutos de duración. Damos clic en Generar Clase.<br>
-      En este momento, LangGraph ejecuta secuencialmente los nodos. Recibimos la respuesta del Agente Revisor con un Score que supera el umbral del 85%, autorizando el ensamblado.<br>
-      Reproducimos el video MP4 resultante: noten la fluidez de la locución en español, la correspondencia anatómica de la imagen y la franja inferior 100% sincronizada con lo que se relata».<br>
+      «A continuación, pasamos a la demostración en vivo de nuestro MVP. Aquí vemos la interfaz web conectada directamente a nuestra API en FastAPI.<br>
+      Como caso de prueba oficial evaluado por el equipo, ingresamos el tema: <em>'Cuidado y tenencia responsable de mascotas'</em>. En el selector vemos las opciones de Nivel Educativo:<br>
+      • En <strong>Básica (1° a 4°)</strong>, el sistema adopta un lenguaje sumamente lúdico y afectivo.<br>
+      • En <strong>Básica (5° a 8°)</strong>, incorpora analogías cotidianas juveniles y mecánicas de cuidado sin abusar de jerga.<br>
+      • En <strong>Enseñanza Media</strong>, calibramos el modelo para exigir un tono reflexivo, maduro y serio, prohibiendo expresiones de videojuegos forzadas como 'lag mental' o 'servidor multijugador'.<br>
+      • En <strong>Educación Superior</strong>, asume rigor metodológico y sanitario profesional.<br><br>
+      Seleccionamos Enseñanza Media, 15 minutos y pulsamos 'Generar Clase'. En este momento, LangGraph ejecuta secuencialmente los nodos. Recibimos la respuesta con el Score del Agente Revisor (&ge; 85%), autorizando el renderizado.<br>
+      Reproducimos el video MP4 resultante: noten la fluidez de la locución en español, la ilustración y la franja Lower-Third 100% sincronizada».<br>
       <em>(Consejo: Si la red externa tiene retraso, reproduzcan inmediatamente el video de respaldo de la columna derecha)</em>.`,
 
       // Slide 6
