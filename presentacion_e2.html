@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Defensa E2: Sistema de IA Multiagente para Clases Multimedia | CINF200 UNAB</title>
+  <style>
+    :root {
+      --navy-900: #0a192f;
+      --navy-800: #003366;
+      --navy-700: #1e3a8a;
+      --blue-600: #2563eb;
+      --cyan-400: #38bdf8;
+      --emerald-500: #10b981;
+      --amber-500: #f59e0b;
+      --red-500: #ef4444;
+      --slate-100: #f1f5f9;
+      --slate-200: #e2e8f0;
+      --slate-300: #cbd5e1;
+      --slate-400: #94a3b8;
+      --slate-700: #334155;
+      --slate-800: #1e293b;
+      --slate-900: #0f172a;
+      --card-bg: rgba(30, 41, 59, 0.85);
+      --card-border: rgba(56, 189, 248, 0.2);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at 50% 10%, #0d2847 0%, #071527 50%, #030a14 100%);
+      color: var(--slate-100);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    /* Top Progress Bar */
+    #progress-bar {
+      height: 4px;
+      background: linear-gradient(90deg, var(--blue-600), var(--cyan-400));
+      width: 0%;
+      transition: width 0.3s ease;
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 100;
+    }
+
+    /* Header Nav */
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 28px;
+      background: rgba(10, 25, 47, 0.7);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      z-index: 50;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: var(--cyan-400);
+    }
+
+    .badge-unab {
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid var(--cyan-400);
+      color: #fff;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      font-weight: 800;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .timer-badge {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-variant-numeric: tabular-nums;
+      color: var(--slate-300);
+    }
+
+    .btn-icon {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: var(--slate-200);
+      padding: 6px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.82rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .btn-icon:hover {
+      background: rgba(56, 189, 248, 0.2);
+      border-color: var(--cyan-400);
+      color: #fff;
+    }
+
+    /* Presentation Viewport */
+    main {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px 40px;
+      position: relative;
+    }
+
+    .slide {
+      display: none;
+      width: 100%;
+      max-width: 1240px;
+      height: calc(100vh - 150px);
+      max-height: 740px;
+      animation: fadeIn 0.4s ease-out;
+      overflow-y: auto;
+      padding-right: 6px;
+    }
+
+    .slide.active {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Slide Titles & Layout */
+    .slide-header {
+      margin-bottom: 20px;
+    }
+
+    .slide-tag {
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--cyan-400);
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .slide-title {
+      font-size: 2.1rem;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.2;
+    }
+
+    .slide-subtitle {
+      font-size: 1.05rem;
+      color: var(--slate-400);
+      margin-top: 4px;
+    }
+
+    /* Cards Grid */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+
+    .grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 14px;
+      padding: 20px;
+      backdrop-filter: blur(12px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.35);
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .card:hover {
+      border-color: rgba(56, 189, 248, 0.4);
+    }
+
+    .card-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .card p, .card li {
+      font-size: 0.92rem;
+      color: var(--slate-300);
+      line-height: 1.5;
+    }
+
+    ul.bullet-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    ul.bullet-list li {
+      position: relative;
+      padding-left: 20px;
+    }
+
+    ul.bullet-list li::before {
+      content: "•";
+      color: var(--cyan-400);
+      font-size: 1.4rem;
+      position: absolute;
+      left: 2px;
+      top: -4px;
+    }
+
+    /* Slide 1: Hero Cover */
+    .hero-container {
+      text-align: center;
+      max-width: 950px;
+      margin: 0 auto;
+    }
+
+    .hero-badge-group {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 18px;
+    }
+
+    .hero-title {
+      font-size: 2.8rem;
+      font-weight: 900;
+      line-height: 1.15;
+      background: linear-gradient(135deg, #ffffff 40%, var(--cyan-400) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 16px;
+    }
+
+    .hero-desc {
+      font-size: 1.25rem;
+      color: var(--slate-300);
+      max-width: 780px;
+      margin: 0 auto 30px auto;
+      line-height: 1.5;
+    }
+
+    .team-box {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin-top: 25px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .team-member {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 12px 20px;
+      border-radius: 10px;
+    }
+
+    .team-name {
+      font-weight: 700;
+      color: #fff;
+      font-size: 1rem;
+    }
+
+    .team-role {
+      font-size: 0.8rem;
+      color: var(--cyan-400);
+      margin-top: 2px;
+    }
+
+    /* Slide 3: Diagram container */
+    .diagram-wrapper {
+      display: flex;
+      gap: 24px;
+      align-items: center;
+      height: 100%;
+    }
+
+    .diagram-img-box {
+      flex: 1.3;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 10px;
+      text-align: center;
+      height: 540px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: zoom-in;
+    }
+
+    .diagram-img-box img {
+      max-height: 100%;
+      max-width: 100%;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+
+    .diagram-text-box {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* Table styles */
+    .clean-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.83rem;
+      text-align: left;
+    }
+
+    .clean-table th {
+      background: rgba(0, 51, 102, 0.8);
+      color: var(--cyan-400);
+      padding: 10px 12px;
+      font-weight: 700;
+      border-bottom: 2px solid var(--blue-600);
+    }
+
+    .clean-table td {
+      padding: 9px 12px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      color: var(--slate-200);
+    }
+
+    .clean-table tr:nth-child(even) td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .tag-pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      font-weight: 700;
+    }
+    .pill-green { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid #10b981; }
+    .pill-blue { background: rgba(37, 99, 235, 0.2); color: #60a5fa; border: 1px solid #3b82f6; }
+    .pill-amber { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid #f59e0b; }
+
+    /* Slide 5: Live Demo Special Slide */
+    .demo-container {
+      display: grid;
+      grid-template-columns: 1fr 1.15fr;
+      gap: 24px;
+      height: 100%;
+      align-items: center;
+    }
+
+    .demo-action-card {
+      background: linear-gradient(145deg, rgba(15, 23, 42, 0.95), rgba(30, 58, 138, 0.35));
+      border: 2px solid var(--cyan-400);
+      border-radius: 16px;
+      padding: 28px;
+      box-shadow: 0 0 35px rgba(56, 189, 248, 0.15);
+      text-align: center;
+    }
+
+    .btn-launch {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(135deg, #2563eb, #0284c7);
+      color: #fff;
+      padding: 16px 32px;
+      border-radius: 12px;
+      font-size: 1.15rem;
+      font-weight: 800;
+      text-decoration: none;
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.4);
+      transition: all 0.25s;
+      margin: 18px 0;
+    }
+
+    .btn-launch:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 28px rgba(56, 189, 248, 0.6);
+      background: linear-gradient(135deg, #1d4ed8, #0369a1);
+    }
+
+    .video-preview-card {
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 16px;
+      padding: 18px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    video {
+      width: 100%;
+      border-radius: 10px;
+      background: #000;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    /* Stat metrics */
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: 900;
+      color: var(--cyan-400);
+      line-height: 1;
+    }
+
+    .stat-label {
+      font-size: 0.85rem;
+      color: var(--slate-400);
+      margin-top: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 600;
+    }
+
+    /* Footer Nav */
+    footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 28px;
+      background: rgba(10, 25, 47, 0.85);
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      z-index: 50;
+    }
+
+    .slide-indicator {
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: var(--slate-300);
+    }
+
+    .nav-buttons {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn-nav {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: #fff;
+      padding: 8px 18px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .btn-nav:hover:not(:disabled) {
+      background: var(--blue-600);
+      border-color: var(--blue-600);
+    }
+
+    .btn-nav:disabled {
+      opacity: 0.35;
+      cursor: not-allowed;
+    }
+
+    /* Speaker Notes Modal */
+    #notes-drawer {
+      position: fixed;
+      bottom: 60px;
+      right: 28px;
+      width: 480px;
+      max-height: 380px;
+      background: rgba(15, 23, 42, 0.97);
+      border: 1px solid var(--cyan-400);
+      border-radius: 12px;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(16px);
+      z-index: 200;
+      display: none;
+      flex-direction: column;
+      animation: slideUp 0.25s ease-out;
+    }
+
+    #notes-drawer.open {
+      display: flex;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .notes-header {
+      padding: 10px 16px;
+      background: rgba(0, 51, 102, 0.6);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--cyan-400);
+    }
+
+    .notes-body {
+      padding: 14px 16px;
+      overflow-y: auto;
+      font-size: 0.88rem;
+      line-height: 1.55;
+      color: #e2e8f0;
+    }
+
+    .notes-body strong {
+      color: #38bdf8;
+    }
+
+    /* Fullscreen Modal Image */
+    #modal-img {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.92);
+      z-index: 300;
+      align-items: center;
+      justify-content: center;
+      cursor: zoom-out;
+    }
+
+    #modal-img.open {
+      display: flex;
+    }
+
+    #modal-img img {
+      max-width: 95vw;
+      max-height: 95vh;
+      object-fit: contain;
+      box-shadow: 0 0 40px rgba(56, 189, 248, 0.3);
+      border-radius: 8px;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="progress-bar"></div>
+
+  <!-- Header -->
+  <header>
+    <div class="brand">
+      <span class="badge-unab">UNAB</span>
+      <span>CINF200 · Seminario de Licenciatura en Informática</span>
+    </div>
+    <div class="header-controls">
+      <div class="timer-badge" id="timer">⏱️ 00:00</div>
+      <button class="btn-icon" id="btn-notes" title="Abrir notas del orador (Tecla N)">
+        🎤 Notas (N)
+      </button>
+      <button class="btn-icon" id="btn-fs" title="Pantalla completa (Tecla F)">
+        ⛶ Pantalla completa
+      </button>
+    </div>
+  </header>
+
+  <!-- Viewport -->
+  <main>
+
+    <!-- SLIDE 1: Portada -->
+    <div class="slide active" id="slide-1">
+      <div class="hero-container">
+        <div class="hero-badge-group">
+          <span class="tag-pill pill-blue">Entrega 2 (E2) · Avance MVP</span>
+          <span class="tag-pill pill-green">Sede Viña del Mar</span>
+          <span class="tag-pill pill-amber">Semestre 2026-2</span>
+        </div>
+        <h1 class="hero-title">Sistema de IA Multiagente para el Diseño de Clases Multimedia Coherentes y Editables</h1>
+        <p class="hero-desc">
+          Orquestación secuencial basada en Grafos Acíclicos Dirigidos (DAG) con LangGraph, bucles analíticos de control pedagógico y ensamblado determinista continuo en MoviePy.
+        </p>
+
+        <div class="team-box">
+          <div class="team-member">
+            <div class="team-name">Rodrigo Venegas</div>
+            <div class="team-role">Líder Arquitectura DAG & FastAPI</div>
+          </div>
+          <div class="team-member">
+            <div class="team-name">Pablo Loncon</div>
+            <div class="team-role">Diseño de Prompts & Agente Revisor QC</div>
+          </div>
+          <div class="team-member">
+            <div class="team-name">Francisco Espinoza</div>
+            <div class="team-role">Motor Determinista & Edge-TTS / MoviePy</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 2: Problema y Diagnóstico -->
+    <div class="slide" id="slide-2">
+      <div class="slide-header">
+        <div class="slide-tag">Diagnóstico y Justificación</div>
+        <h2 class="slide-title">La Falla Causal del Enfoque Monolítico (Single-Prompt)</h2>
+        <p class="slide-subtitle">Por qué un único llamado a un LLM no es viable para la producción pedagógica formal.</p>
+      </div>
+
+      <div class="grid-2">
+        <div class="card" style="border-left: 4px solid var(--red-500);">
+          <div class="card-title" style="color: #f87171;">⚠️ Límites del Enfoque Monolítico</div>
+          <ul class="bullet-list">
+            <li><strong>Alucinación y Dispersión:</strong> Al pedir planificación, guion y locución en un solo prompt, el modelo olvida el Objetivo de Aprendizaje (OA).</li>
+            <li><strong>Desfase Locución-Pantalla:</strong> Lo que la voz sintetizada relata no coincide con lo que el estudiante ve proyectado.</li>
+            <li><strong>Sobrecarga Cognitiva:</strong> Textos extensos e inductores de fatiga que violan la teoría de aprendizaje multimedia (Sweller & Mayer).</li>
+            <li><strong>Complacencia sin Auditoría:</strong> El LLM no evalúa críticamente si su propia clase cumple con los estándares didácticos.</li>
+          </ul>
+        </div>
+
+        <div class="card" style="border-left: 4px solid var(--emerald-500);">
+          <div class="card-title" style="color: #34d399;">✅ La Solución: Grafo DAG por Fases</div>
+          <ul class="bullet-list">
+            <li><strong>Dependencias Reales Inmutables:</strong> La escaleta no puede nacer sin un guion aprobado, y el guion requiere la planificación pedagógica previa.</li>
+            <li><strong>Agentes Especializados Aislados:</strong> Cada agente opera con roles delimitados y esquemas JSON estrictos con Pydantic.</li>
+            <li><strong>Loops de Calidad Acotados:</strong> Bucle condicional (máx. 2 iteraciones) si la auditoría no alcanza el umbral mínimo del 85%.</li>
+            <li><strong>Desacople Determinista:</strong> La generación de video (MoviePy/FFmpeg) no depende de código generado por el LLM.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 3: Arquitectura y Diagrama -->
+    <div class="slide" id="slide-3">
+      <div class="slide-header">
+        <div class="slide-tag">Diseño de Software</div>
+        <h2 class="slide-title">Arquitectura del Sistema Multiagente (Figura 1)</h2>
+        <p class="slide-subtitle">Topología de estados en LangGraph y separación del motor determinista multimedia.</p>
+      </div>
+
+      <div class="diagram-wrapper">
+        <div class="diagram-img-box" id="diagram-container" title="Clic para ampliar en pantalla completa">
+          <img src="figura1_arquitectura_agentes.png" alt="Arquitectura del Sistema Multiagente">
+        </div>
+        <div class="diagram-text-box">
+          <div class="card">
+            <div class="card-title">1. Entrada del Docente</div>
+            <p>Parámetros didácticos esenciales: <strong>Tema / OA + Nivel Educativo + Duración de clase</strong>.</p>
+          </div>
+          <div class="card">
+            <div class="card-title">2. Fases Cognitivas en LangGraph</div>
+            <p>• <strong>Agente Pedagógico:</strong> Planificación (Inicio, Desarrollo y Cierre).<br>
+               • <strong>Agente Teórico:</strong> Guion Teórico (Marco conceptual y analogía).<br>
+               • <strong>Agente Audiovisual:</strong> Escaleta (Locución y prompts de imagen).</p>
+          </div>
+          <div class="card">
+            <div class="card-title">3. Agente Revisor & Bucle de Mejora</div>
+            <p>Auditoría analítica con <strong>7 criterios ponderados</strong>. Si Score &lt; 85%, reenvía feedback correctivo acotado (máx. 2 iteraciones).</p>
+          </div>
+          <div class="card">
+            <div class="card-title">4. Motor Determinista (MoviePy)</div>
+            <p>Ensamblado continuo con voz neural Edge-TTS e ilustraciones Stable Diffusion con franja inferior <em>Lower-Third</em>.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 4: Metodología y Pipeline Técnico -->
+    <div class="slide" id="slide-4">
+      <div class="slide-header">
+        <div class="slide-tag">Metodología de Ingeniería</div>
+        <h2 class="slide-title">Pipeline Metodológico y Control de Calidad (Tabla 2)</h2>
+        <p class="slide-subtitle">Resumen riguroso de etapas, insumos, procesamiento, salidas y mecanismos de control.</p>
+      </div>
+
+      <div class="card" style="padding: 10px;">
+        <table class="clean-table">
+          <thead>
+            <tr>
+              <th>Fase / Módulo</th>
+              <th>Componente</th>
+              <th>Insumo (Input)</th>
+              <th>Procesamiento y Técnica</th>
+              <th>Salida y Control de Calidad</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Fase 1: Planificación</strong></td>
+              <td>Agente Pedagógico</td>
+              <td>OA, Nivel, Duración</td>
+              <td>Dosificación curricular por momentos (Inicio, Desarrollo, Cierre)</td>
+              <td><code>LessonPlan</code> (JSON) · Loop 4 pasos (máx. 2)</td>
+            </tr>
+            <tr>
+              <td><strong>Fase 2: Contenido</strong></td>
+              <td>Agente Teórico</td>
+              <td>Planificación aprobada</td>
+              <td>Redacción conceptual rigurosa, analogías y glosario etario</td>
+              <td><code>TheoreticalScript</code> (JSON) · Control de rigor</td>
+            </tr>
+            <tr>
+              <td><strong>Fase 3: Escaleta</strong></td>
+              <td>Agente Audiovisual</td>
+              <td>Plan + Guion aprobados</td>
+              <td>Guionización escena a escena, locución hablada y prompts visuales</td>
+              <td><code>AudiovisualStoryboard</code> · Sincronía locución</td>
+            </tr>
+            <tr>
+              <td><strong>Fase 4: Auditoría (QC)</strong></td>
+              <td>Agente Revisor</td>
+              <td>Escaleta consolidada</td>
+              <td>Evaluación analítica cuantitativa con <strong>7 criterios</strong> ponderados</td>
+              <td><code>AuditReport</code> · Umbral Score &ge; 85%</td>
+            </tr>
+            <tr>
+              <td><strong>Síntesis de Voz (TTS)</strong></td>
+              <td>Edge-TTS Asíncrono</td>
+              <td>Locución (voiceover)</td>
+              <td>Síntesis neural en español de alta naturalidad</td>
+              <td>Pistas <code>.mp3</code> · Medición de duración exacta</td>
+            </tr>
+            <tr>
+              <td><strong>Ilustraciones con IA</strong></td>
+              <td>Stable Diffusion + PIL</td>
+              <td>Prompts visuales en inglés</td>
+              <td>Inferencia generativa 16:9 y estampado de franja <em>Lower-Third</em></td>
+              <td>Imágenes <code>.jpg</code> · Prompts negativos anti-deformación</td>
+            </tr>
+            <tr>
+              <td><strong>Ensamblado Continuo</strong></td>
+              <td>MoviePy / FFmpeg</td>
+              <td>Audios .mp3 + Imágenes .jpg</td>
+              <td>Concatenación continua cuadro a cuadro desacoplada de código LLM</td>
+              <td>Video final <code>.mp4</code> (1280x720 H.264) continuo</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- SLIDE 5: Demostración en Vivo -->
+    <div class="slide" id="slide-5">
+      <div class="slide-header">
+        <div class="slide-tag" style="color: #34d399;">Demostración Práctica</div>
+        <h2 class="slide-title">Demostración en Vivo del Producto Mínimo Viable (MVP)</h2>
+        <p class="slide-subtitle">Ejecución interactiva desde la interfaz web conectada a FastAPI y LangGraph.</p>
+      </div>
+
+      <div class="demo-container">
+        <!-- Columna 1: Acción de lanzamiento en vivo -->
+        <div class="demo-action-card">
+          <div style="font-size: 2.2rem; margin-bottom: 8px;">🚀</div>
+          <h3 style="font-size: 1.4rem; color: #fff; margin-bottom: 6px;">Servidor Local FastAPI Activo</h3>
+          <p style="color: var(--slate-300); font-size: 0.95rem;">
+            Ejecutando en <code>http://127.0.0.1:8000</code> mediante <code>iniciar_servidor.bat</code>
+          </p>
+
+          <a href="http://127.0.0.1:8000" target="_blank" class="btn-launch" id="launch-app-btn">
+            Abrir Software en Vivo ↗
+          </a>
+
+          <div style="text-align: left; background: rgba(0,0,0,0.3); padding: 14px; border-radius: 10px; margin-top: 10px;">
+            <div style="font-weight: 700; color: var(--cyan-400); font-size: 0.85rem; margin-bottom: 6px;">
+              Protocolo para la Demostración:
+            </div>
+            <ol style="font-size: 0.82rem; color: var(--slate-300); padding-left: 18px; line-height: 1.5;">
+              <li>Ingresar OA: <em>«La función del sistema circulatorio»</em>.</li>
+              <li>Configurar Nivel: <em>Educación Básica</em> · Duración: <em>15 min</em>.</li>
+              <li>Observar progresión de nodos en LangGraph y Score QC (&ge; 85%).</li>
+              <li>Reproducir el video generado con subtítulos sincronizados.</li>
+            </ol>
+          </div>
+        </div>
+
+        <!-- Columna 2: Video de Respaldo Integrado -->
+        <div class="video-preview-card">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <span style="font-weight: 700; font-size: 0.9rem; color: var(--slate-200);">
+              📺 Video Generado por el MVP (Respaldo)
+            </span>
+            <span class="tag-pill pill-green">MP4 1280x720</span>
+          </div>
+
+          <!-- Video embebido directo para contingencia -->
+          <video controls preload="metadata">
+            <source src="backend/output/test_circulatorio_video.mp4" type="video/mp4">
+            <source src="backend/output/clase_17a541aa_video.mp4" type="video/mp4">
+            Tu navegador no soporta reproducción de video.
+          </video>
+
+          <div style="font-size: 0.8rem; color: var(--slate-400); line-height: 1.4;">
+            <strong>Garantía de Contingencia:</strong> Si existe latencia en la API externa durante la defensa oral, este reproductor permite escuchar la voz neural Edge-TTS y comprobar la sincronía escena por escena sin pausas.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 6: Evaluación y Resultados -->
+    <div class="slide" id="slide-6">
+      <div class="slide-header">
+        <div class="slide-tag">Resultados Técnicos</div>
+        <h2 class="slide-title">Evaluación del Agente Revisor y Eficiencia Docente</h2>
+        <p class="slide-subtitle">Métricas empíricas alcanzadas en las pruebas automatizadas de la Entrega 2.</p>
+      </div>
+
+      <div class="grid-4" style="margin-bottom: 20px;">
+        <div class="card" style="text-align: center;">
+          <div class="stat-number">90.4%</div>
+          <div class="stat-label">Score Global QC</div>
+          <p style="font-size: 0.78rem; margin-top: 4px; color: #34d399;">Umbral de aprobación: &ge; 85%</p>
+        </div>
+        <div class="card" style="text-align: center;">
+          <div class="stat-number">95/100</div>
+          <div class="stat-label">Alineación OA vs Guion</div>
+          <p style="font-size: 0.78rem; margin-top: 4px; color: var(--cyan-400);">Criterio más ponderado (20%)</p>
+        </div>
+        <div class="card" style="text-align: center;">
+          <div class="stat-number">1.0</div>
+          <div class="stat-label">Sincronía Voz-Pantalla</div>
+          <p style="font-size: 0.78rem; margin-top: 4px; color: #34d399;">Cero desfases temporales</p>
+        </div>
+        <div class="card" style="text-align: center;">
+          <div class="stat-number">&lt; 45s</div>
+          <div class="stat-label">Latencia del Pipeline</div>
+          <p style="font-size: 0.78rem; margin-top: 4px; color: var(--cyan-400);">98% de reducción de tiempo</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Matriz de 7 Criterios del Revisor (QC)</div>
+          <ul class="bullet-list" style="font-size: 0.85rem;">
+            <li><strong>1. Alineación OA (20%):</strong> Verificación de que cada escena responda al objetivo.</li>
+            <li><strong>2. Exactitud Conceptual (15%):</strong> Rigor científico y glosario etario.</li>
+            <li><strong>3. Coherencia de Escenas (15%):</strong> Fluidez sin vacíos temáticos.</li>
+            <li><strong>4. Factibilidad Temporal (10%):</strong> Ajuste a la duración configurada.</li>
+            <li><strong>5. Correspondencia Locución-Imagen (15%):</strong> Sintonía audiovisual.</li>
+            <li><strong>6. Densidad Didáctica (10%):</strong> Control de carga cognitiva por escena.</li>
+            <li><strong>7. Trazabilidad de Fuentes (15%):</strong> Respaldo de afirmaciones técnicas.</li>
+          </ul>
+        </div>
+
+        <div class="card">
+          <div class="card-title">Impacto en la Labor Docente</div>
+          <p style="margin-bottom: 12px;">
+            El tiempo promedio requerido por un docente para preparar manualmente una clase multimedia breve (investigación, redacción de guion, búsqueda de imágenes libres de derechos, grabación de locución y edición de video) oscila entre <strong>5 y 6 horas de trabajo no asistido</strong>.
+          </p>
+          <p style="color: #38bdf8; font-weight: 600;">
+            El sistema multiagente reduce este proceso a <strong>45 segundos</strong> de procesamiento determinista, entregando una clase validada pedagógicamente y 100% editable.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 7: Hoja de Ruta hacia la E3 -->
+    <div class="slide" id="slide-7">
+      <div class="slide-header">
+        <div class="slide-tag">Plan de Trabajo Futuro</div>
+        <h2 class="slide-title">Hoja de Ruta hacia la Entrega 3 (E3)</h2>
+        <p class="slide-subtitle">Hitos clave de ingeniería de software planificados para la versión final de titulación.</p>
+      </div>
+
+      <div class="grid-3">
+        <div class="card" style="border-top: 4px solid var(--amber-500);">
+          <div class="tag-pill pill-amber" style="margin-bottom: 10px;">Hito 10 (En progreso)</div>
+          <div class="card-title">Mejora y Calidad Visual de Imágenes con IA</div>
+          <p style="margin-bottom: 10px;">
+            Resolver el fenómeno de <em>Attribute Binding Failure</em> / <em>Concept Bleeding</em> en modelos de difusión abiertos (ej. evitar que al pedir un niño con su mascota se mezclen rasgos anatómicos).
+          </p>
+          <p style="font-size: 0.82rem; color: var(--cyan-400);">
+            • Incorporación de prompts negativos educativos.<br>
+            • Integración de modelos de difusión de mayor resolución didáctica.
+          </p>
+        </div>
+
+        <div class="card" style="border-top: 4px solid var(--blue-600);">
+          <div class="tag-pill pill-blue" style="margin-bottom: 10px;">Hito 11 (E3)</div>
+          <div class="card-title">Empaquetado Multimodal y Recursos Editables</div>
+          <p style="margin-bottom: 10px;">
+            El docente requiere flexibilidad didáctica más allá de un video cerrado.
+          </p>
+          <p style="font-size: 0.82rem; color: var(--cyan-400);">
+            • Exportación del guion pedagógico en Word/PDF editable.<br>
+            • Descarga de pistas de audio e imágenes independientes.<br>
+            • Generación de paquetes estándar de e-learning (SCORM / HTML5) para Canvas y Moodle.
+          </p>
+        </div>
+
+        <div class="card" style="border-top: 4px solid var(--emerald-500);">
+          <div class="tag-pill pill-green" style="margin-bottom: 10px;">Hito 12 (E3)</div>
+          <div class="card-title">Optimización de Rendimiento y Defensa</div>
+          <p style="margin-bottom: 10px;">
+            Reducción de latencia mediante paralelización y robustez para la defensa final.
+          </p>
+          <p style="font-size: 0.82rem; color: var(--cyan-400);">
+            • Paralelización asíncrona con <code>asyncio.gather</code> para síntesis concurrente.<br>
+            • Sistema de caché local para activos frecuentes.<br>
+            • Despliegue en entorno reproducible para la defensa final ante la comisión.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 8: Conclusiones y Cierre -->
+    <div class="slide" id="slide-8">
+      <div class="hero-container">
+        <div class="hero-badge-group">
+          <span class="tag-pill pill-green">Conclusiones de la E2</span>
+          <span class="tag-pill pill-blue">Repositorio Público GitHub</span>
+        </div>
+
+        <h2 class="hero-title" style="font-size: 2.4rem;">Conclusiones y Ronda de Preguntas</h2>
+        
+        <div class="card" style="text-align: left; max-width: 820px; margin: 0 auto 24px auto;">
+          <ul class="bullet-list" style="font-size: 0.95rem;">
+            <li><strong>Viabilidad de la Arquitectura DAG:</strong> La orquestación en grafos resolvió eficazmente la desalineación pedagógica de los enfoques monolíticos tradicionales.</li>
+            <li><strong>Determinismo Garantizado:</strong> El desacoplamiento entre el razonamiento de los LLMs y el motor MoviePy/Edge-TTS asegura un ensamblado continuo sin fallos de código.</li>
+            <li><strong>Madurez del MVP:</strong> Se logró un prototipo web interactivo 100% operativo con una auditoría pedagógica respaldada por un 90.4% de score global.</li>
+          </ul>
+        </div>
+
+        <div style="font-size: 0.95rem; color: var(--slate-300); margin-bottom: 18px;">
+          Repositorio del Proyecto: 
+          <a href="https://github.com/RGVenegas/Seminario-de-Lic" target="_blank" style="color: var(--cyan-400); text-decoration: underline;">
+            github.com/RGVenegas/Seminario-de-Lic
+          </a>
+        </div>
+
+        <p style="font-size: 1.15rem; color: #fff; font-weight: 700;">
+          Muchas gracias. Quedamos a disposición de la comisión para la ronda de preguntas.
+        </p>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="slide-indicator" id="slide-counter">Diapositiva 1 / 8</div>
+    <div class="nav-buttons">
+      <button class="btn-nav" id="btn-prev" disabled>◀ Anterior</button>
+      <button class="btn-nav" id="btn-next">Siguiente ▶</button>
+    </div>
+  </footer>
+
+  <!-- Speaker Notes Drawer -->
+  <div id="notes-drawer">
+    <div class="notes-header">
+      <span>🎤 Guion Hablado (Notas del Orador)</span>
+      <button style="background: none; border: none; color: #fff; cursor: pointer; font-size: 1rem;" id="close-notes">✕</button>
+    </div>
+    <div class="notes-body" id="notes-content">
+      <!-- Se actualiza dinámicamente con JS -->
+    </div>
+  </div>
+
+  <!-- Fullscreen Diagram Modal -->
+  <div id="modal-img">
+    <img src="figura1_arquitectura_agentes.png" alt="Diagrama de Arquitectura Ampliado">
+  </div>
+
+  <script>
+    // Configuración de Diapositivas y Guiones Hablados
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+    let currentSlide = 0;
+
+    const speakerNotes = [
+      // Slide 1
+      `<strong>Expositor 1 (Rodrigo):</strong><br>
+      «Buenos días / tardes profesores de la comisión evaluadora y profesor guía. Hoy presentamos los avances de la Entrega 2 de nuestro proyecto de titulación: el desarrollo de un Sistema de Inteligencia Artificial Multiagente para el Diseño de Clases Multimedia Coherentes y Editables.<br>
+      El equipo está compuesto por Pablo Loncón, Francisco Espinoza y quien les habla, Rodrigo Venegas. En esta entrega venimos a demostrar cómo pasamos de la arquitectura conceptual de la E1 a un Producto Mínimo Viable 100% funcional, integrando agentes cognitivos en LangGraph con un motor determinista de ensamblado multimedia».`,
+
+      // Slide 2
+      `<strong>Expositor 1 (Rodrigo):</strong><br>
+      «Para entender el origen de este proyecto, debemos mirar lo que ocurre actualmente en las salas de clases. La masificación de modelos como ChatGPT ha llevado a muchos docentes a preparar materiales mediante un solo prompt extenso. Sin embargo, los resultados son deficientes:<br>
+      Primero, alucinación y dispersión: el modelo olvida el Objetivo de Aprendizaje original.<br>
+      Segundo, sobrecarga cognitiva: genera textos densos que compiten con lo que se lee en pantalla, o contradicciones donde la voz dice una cosa y la imagen muestra otra.<br>
+      Nuestra hipótesis de ingeniería es que la creación didáctica exige dependencias estrictas, donde cada tarea esté aislada en un agente especializado y supervisada por loops cerrados de calidad».`,
+
+      // Slide 3
+      `<strong>Expositor 2 (Pablo):</strong><br>
+      «En la Figura 1 vemos cómo la arquitectura desacopla el sistema en dos mundos: la Orquestación Cognitiva en LangGraph y el Motor Determinista Multimedia.<br>
+      El docente solo ingresa tres parámetros: Tema/OA, Nivel Educativo y Duración.<br>
+      A partir de ahí, el grafo hace transicionar el estado por tres agentes generadores:<br>
+      1. El Agente Pedagógico entrega la Planificación Didáctica (Inicio, Desarrollo y Cierre).<br>
+      2. El Agente Teórico redacta el Guion Teórico con rigor y analogías.<br>
+      3. El Agente Audiovisual genera la Escaleta escena por escena con locución y prompts.<br>
+      Posteriormente, el Agente Revisor audita bajo 7 criterios. Si el score es menor al 85%, el bucle devuelve observaciones para reescribir la sección afectada (máx. 2 iteraciones). Superado el umbral, pasa al motor multimedia».`,
+
+      // Slide 4
+      `<strong>Expositor 3 (Francisco):</strong><br>
+      «Respecto a cómo se construyen los recursos audiovisuales, nuestra metodología en la Tabla 2 garantiza un principio clave: cero alucinaciones de código durante el renderizado.<br>
+      Para la voz, implementamos un servicio asíncrono con Edge-TTS en español, que genera los archivos MP3 y calcula con precisión de milisegundos su duración real.<br>
+      Para las ilustraciones, conectamos los prompts con Stable Diffusion (AI Horde) y con Pillow reescalamos a 16:9 y estampamos una franja Lower-Third con el subtítulo sincronizado.<br>
+      Finalmente, MoviePy concatena cuadro a cuadro de forma continua y determinista, produciendo un MP4 estándar en H.264».`,
+
+      // Slide 5
+      `<strong>Expositor 1 (Rodrigo - Operando la Demo):</strong><br>
+      «A continuación, pasamos a la demostración en vivo de nuestro MVP. Aquí vemos la interfaz web conectada a nuestra API en FastAPI.<br>
+      Ingresamos el Tema 'La función del sistema circulatorio', seleccionamos nivel 'Educación Básica' y 15 minutos de duración. Damos clic en Generar Clase.<br>
+      En este momento, LangGraph ejecuta secuencialmente los nodos. Recibimos la respuesta del Agente Revisor con un Score que supera el umbral del 85%, autorizando el ensamblado.<br>
+      Reproducimos el video MP4 resultante: noten la fluidez de la locución en español, la correspondencia anatómica de la imagen y la franja inferior 100% sincronizada con lo que se relata».<br>
+      <em>(Consejo: Si la red externa tiene retraso, reproduzcan inmediatamente el video de respaldo de la columna derecha)</em>.`,
+
+      // Slide 6
+      `<strong>Expositor 2 (Pablo):</strong><br>
+      «Las pruebas técnicas automatizadas de la E2 respaldan cuantitativamente nuestra arquitectura:<br>
+      El Agente Revisor otorgó a nuestro MVP un Score Global del 90.4%, destacando un 95/100 en Alineación Objetivo-Contenido y 90/100 en Correspondencia Locución-Imagen-Texto.<br>
+      En términos de eficiencia docente, logramos reducir el tiempo de preparación de una clase multimedia estructurada de 6 horas de trabajo manual no asistido a un pipeline que toma menos de 45 segundos de cómputo automatizado».`,
+
+      // Slide 7
+      `<strong>Expositor 3 (Francisco):</strong><br>
+      «Para la Entrega Final (E3) hemos definido una hoja de ruta con 3 hitos clave de ingeniería:<br>
+      1. Hito 10: Optimización y Calidad de Ilustraciones con IA, resolviendo el Concept Bleeding o mezclas anatómicas en modelos abiertos mediante prompts negativos y modelos de mayor resolución didáctica.<br>
+      2. Hito 11: Empaquetado Multimodal y Recursos Editables, entregando el kit descargable completo: guion editable, audios e imágenes independientes, y empaquetado SCORM/HTML5 para Canvas y Moodle.<br>
+      3. Hito 12: Optimización de Rendimiento mediante asyncio.gather para síntesis concurrente y despliegue del entorno reproducible para la defensa final de titulación».`,
+
+      // Slide 8
+      `<strong>Expositor 1 (Rodrigo):</strong><br>
+      «En conclusión, este proyecto demuestra que la inteligencia artificial en educación debe operar como un sistema modular de ingeniería guiado por objetivos pedagógicos, supervisado por auditorías analíticas y ensamblado de forma determinista.<br>
+      Agradecemos su atención y quedamos a disposición de la comisión para responder sus preguntas. Muchas gracias».`
+    ];
+
+    // Elementos DOM
+    const btnPrev = document.getElementById('btn-prev');
+    const btnNext = document.getElementById('btn-next');
+    const slideCounter = document.getElementById('slide-counter');
+    const progressBar = document.getElementById('progress-bar');
+    const notesDrawer = document.getElementById('notes-drawer');
+    const notesContent = document.getElementById('notes-content');
+    const btnNotes = document.getElementById('btn-notes');
+    const closeNotes = document.getElementById('close-notes');
+    const btnFs = document.getElementById('btn-fs');
+    const diagramBox = document.getElementById('diagram-container');
+    const modalImg = document.getElementById('modal-img');
+
+    // Función para cambiar diapositiva
+    function showSlide(index) {
+      if (index < 0 || index >= totalSlides) return;
+
+      slides[currentSlide].classList.remove('active');
+      currentSlide = index;
+      slides[currentSlide].classList.add('active');
+
+      // Actualizar contador y progreso
+      slideCounter.textContent = `Diapositiva ${currentSlide + 1} / ${totalSlides}`;
+      progressBar.style.width = `${((currentSlide + 1) / totalSlides) * 100}%`;
+
+      btnPrev.disabled = currentSlide === 0;
+      btnNext.disabled = currentSlide === totalSlides - 1;
+
+      // Actualizar notas
+      notesContent.innerHTML = speakerNotes[currentSlide] || "Sin notas para esta diapositiva.";
+    }
+
+    // Navegación
+    btnPrev.addEventListener('click', () => showSlide(currentSlide - 1));
+    btnNext.addEventListener('click', () => showSlide(currentSlide + 1));
+
+    // Teclado
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown') {
+        showSlide(currentSlide + 1);
+      } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
+        showSlide(currentSlide - 1);
+      } else if (e.key.toLowerCase() === 'n') {
+        toggleNotes();
+      } else if (e.key.toLowerCase() === 'f') {
+        toggleFullScreen();
+      } else if (e.key === 'Escape') {
+        modalImg.classList.remove('open');
+      }
+    });
+
+    // Notas del orador
+    function toggleNotes() {
+      notesDrawer.classList.toggle('open');
+    }
+    btnNotes.addEventListener('click', toggleNotes);
+    closeNotes.addEventListener('click', () => notesDrawer.classList.remove('open'));
+
+    // Pantalla completa
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(() => {});
+      } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+      }
+    }
+    btnFs.addEventListener('click', toggleFullScreen);
+
+    // Zoom imagen
+    if (diagramBox) {
+      diagramBox.addEventListener('click', () => modalImg.classList.add('open'));
+    }
+    modalImg.addEventListener('click', () => modalImg.classList.remove('open'));
+
+    // Cronómetro en vivo
+    let secondsElapsed = 0;
+    setInterval(() => {
+      secondsElapsed++;
+      const mins = String(Math.floor(secondsElapsed / 60)).padStart(2, '0');
+      const secs = String(secondsElapsed % 60).padStart(2, '0');
+      document.getElementById('timer').textContent = `⏱️ ${mins}:${secs}`;
+    }, 1000);
+
+    // Inicializar
+    showSlide(0);
+  </script>
+</body>
+</html>
