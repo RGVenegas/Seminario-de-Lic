@@ -201,14 +201,14 @@ def get_education_level_context(level: str) -> dict:
     elif "5º - 8º" in lvl or "5° - 8°" in lvl or "básica" in lvl or "basica" in lvl or "primaria" in lvl:
         return {
             "age_range": "10 a 14 años (Enseñanza Básica - 5º a 8º Básico)",
-            "tone_focus": "Enfocado en preadolescentes. Lenguaje claro, motivador y estimulante. Explicaciones paso a paso con analogías de la vida cotidiana.",
+            "tone_focus": "Enfocado en preadolescentes. Lenguaje juvenil, motivador y cercano. Permite vincular analogías moderadas con tecnología o mecánicas de videojuegos cotidianos (ej. barras de energía, misiones de cuidado responsable), manteniendo un equilibrio sin saturar con jerga.",
             "visual_focus": "Infografía escolar limpia, esquemas paso a paso y diagramas ilustrados atractivos."
         }
     # Enseñanza Media (1º a 4º Medio - Adolescentes)
     elif "media" in lvl or "medio" in lvl or "secundaria" in lvl or "bachillerato" in lvl:
         return {
             "age_range": "14 a 18 años (Enseñanza Media - 1º a 4º Medio / Adolescentes)",
-            "tone_focus": "Enfocado en adolescentes de Enseñanza Media chilena. Tono dinámico, respetuoso y moderno (evitar a toda costa infantilizar, pero sin densidad abstracta universitaria). Conectar con el cuerpo humano, deportes, pulsaciones, energía, videojuegos, tecnología, música y situaciones cotidianas de jóvenes.",
+            "tone_focus": "Enfocado en adolescentes de Enseñanza Media. Tono maduro, serio, respetuoso y analítico (estilo divulgación científica moderna o documental). Tratar al estudiante como un joven adulto. PROHIBIDO terminantemente usar jerga gamer forzada o modismos informales como 'lag mental', 'servidor multijugador' o similares. Priorizar conceptos biológicos, bienestar animal, responsabilidad ética y razonamiento crítico.",
             "visual_focus": "Infografía científica moderna tipo Kurzgesagt o Khan Academy, con esquemas anatómicos limpios y colores vivos."
         }
     # Educación Superior (CFT / IP / Universidad)
