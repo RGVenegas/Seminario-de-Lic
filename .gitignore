@@ -18,3 +18,7 @@ __pycache__/
 backend/output/
 *.mp4
 *.mp3
+
+# Excepción: video oficial de muestra para la presentación interactiva E2
+!demo_video/
+!demo_video/test_circulatorio_video.mp4
