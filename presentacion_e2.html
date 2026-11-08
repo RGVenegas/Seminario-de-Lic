@@ -93,16 +93,6 @@
       gap: 16px;
     }
 
-    .timer-badge {
-      background: rgba(0, 0, 0, 0.4);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-size: 0.85rem;
-      font-variant-numeric: tabular-nums;
-      color: var(--slate-300);
-    }
-
     .btn-icon {
       background: rgba(255, 255, 255, 0.08);
       border: 1px solid rgba(255, 255, 255, 0.15);
@@ -509,57 +499,6 @@
       cursor: not-allowed;
     }
 
-    /* Speaker Notes Modal */
-    #notes-drawer {
-      position: fixed;
-      bottom: 60px;
-      right: 28px;
-      width: 480px;
-      max-height: 380px;
-      background: rgba(15, 23, 42, 0.97);
-      border: 1px solid var(--cyan-400);
-      border-radius: 12px;
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
-      backdrop-filter: blur(16px);
-      z-index: 200;
-      display: none;
-      flex-direction: column;
-      animation: slideUp 0.25s ease-out;
-    }
-
-    #notes-drawer.open {
-      display: flex;
-    }
-
-    @keyframes slideUp {
-      from { transform: translateY(20px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-
-    .notes-header {
-      padding: 10px 16px;
-      background: rgba(0, 51, 102, 0.6);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: var(--cyan-400);
-    }
-
-    .notes-body {
-      padding: 14px 16px;
-      overflow-y: auto;
-      font-size: 0.88rem;
-      line-height: 1.55;
-      color: #e2e8f0;
-    }
-
-    .notes-body strong {
-      color: #38bdf8;
-    }
-
     /* Fullscreen Modal Image */
     #modal-img {
       display: none;
@@ -596,13 +535,6 @@
       <span>CINF200 · Seminario de Licenciatura en Informática</span>
     </div>
     <div class="header-controls">
-      <div class="timer-badge" id="timer">⏱️ 00:00</div>
-      <a href="guion_presentacion.html" target="_blank" class="btn-icon" style="text-decoration: none;" title="Abrir guion oficial de defensa oral">
-        📜 Guion Completo
-      </a>
-      <button class="btn-icon" id="btn-notes" title="Abrir notas del orador (Tecla N)">
-        🎤 Notas (N)
-      </button>
       <button class="btn-icon" id="btn-fs" title="Pantalla completa (Tecla F)">
         ⛶ Pantalla completa
       </button>
@@ -988,98 +920,22 @@
     </div>
   </footer>
 
-  <!-- Speaker Notes Drawer -->
-  <div id="notes-drawer">
-    <div class="notes-header">
-      <span>🎤 Guion Hablado (Notas del Orador)</span>
-      <button style="background: none; border: none; color: #fff; cursor: pointer; font-size: 1rem;" id="close-notes">✕</button>
-    </div>
-    <div class="notes-body" id="notes-content">
-      <!-- Se actualiza dinámicamente con JS -->
-    </div>
-  </div>
-
   <!-- Fullscreen Diagram Modal -->
   <div id="modal-img">
     <img src="figura1_arquitectura_agentes.png" alt="Diagrama de Arquitectura Ampliado">
   </div>
 
   <script>
-    // Configuración de Diapositivas y Guiones Hablados
+    // Configuración de Diapositivas
     const slides = document.querySelectorAll('.slide');
     const totalSlides = slides.length;
     let currentSlide = 0;
-
-    const speakerNotes = [
-      // Slide 1
-      `<strong>Expositor 1 (Rodrigo):</strong><br>
-      «Buenos días / tardes profesores de la comisión evaluadora y profesor guía. Hoy presentamos los avances de la Entrega 2 de nuestro proyecto de titulación: el desarrollo de un Sistema de Inteligencia Artificial Multiagente para el Diseño de Clases Multimedia Coherentes y Editables.<br>
-      El equipo está compuesto por Pablo Loncón, Francisco Espinoza y quien les habla, Rodrigo Venegas. En esta entrega venimos a demostrar cómo pasamos de la arquitectura conceptual de la E1 a un Producto Mínimo Viable 100% funcional, integrando agentes cognitivos en LangGraph con un motor determinista de ensamblado multimedia».`,
-
-      // Slide 2
-      `<strong>Expositor 1 (Rodrigo):</strong><br>
-      «Para entender el origen de este proyecto, debemos mirar lo que ocurre actualmente en las salas de clases. La masificación de modelos como ChatGPT ha llevado a muchos docentes a preparar materiales mediante un solo prompt extenso. Sin embargo, los resultados son deficientes:<br>
-      Primero, alucinación y dispersión: el modelo olvida el Objetivo de Aprendizaje original.<br>
-      Segundo, sobrecarga cognitiva: genera textos densos que compiten con lo que se lee en pantalla, o contradicciones donde la voz dice una cosa y la imagen muestra otra.<br>
-      Nuestra hipótesis de ingeniería es que la creación didáctica exige dependencias estrictas, donde cada tarea esté aislada en un agente especializado y supervisada por loops cerrados de calidad».`,
-
-      // Slide 3
-      `<strong>Expositor 2 (Pablo):</strong><br>
-      «En la Figura 1 vemos cómo la arquitectura desacopla el sistema en dos mundos: la Orquestación Cognitiva en LangGraph y el Motor Determinista Multimedia.<br>
-      El docente solo ingresa tres parámetros: Tema/OA, Nivel Educativo y Duración.<br>
-      A partir de ahí, el grafo hace transicionar el estado por tres agentes generadores:<br>
-      1. El Agente Pedagógico entrega la Planificación Didáctica (Inicio, Desarrollo y Cierre).<br>
-      2. El Agente Teórico redacta el Guion Teórico con rigor y analogías.<br>
-      3. El Agente Audiovisual genera la Escaleta escena por escena con locución y prompts.<br>
-      Posteriormente, el Agente Revisor audita bajo 7 criterios. Si el score es menor al 85%, el bucle devuelve observaciones para reescribir la sección afectada (máx. 2 iteraciones). Superado el umbral, pasa al motor multimedia».`,
-
-      // Slide 4
-      `<strong>Expositor 3 (Francisco):</strong><br>
-      «Respecto a cómo se construyen los recursos audiovisuales, nuestra metodología en la Tabla 2 garantiza un principio clave: cero alucinaciones de código durante el renderizado.<br>
-      Para la voz, implementamos un servicio asíncrono con Edge-TTS en español, que genera los archivos MP3 y calcula con precisión de milisegundos su duración real.<br>
-      Para las ilustraciones, conectamos los prompts con Stable Diffusion (AI Horde) y con Pillow reescalamos a 16:9 y estampamos una franja Lower-Third con el subtítulo sincronizado.<br>
-      Finalmente, MoviePy concatena cuadro a cuadro de forma continua y determinista, produciendo un MP4 estándar en H.264».`,
-
-      // Slide 5
-      `<strong>Expositor 1 (Rodrigo - Operando la Demo):</strong><br>
-      «A continuación, pasamos a la demostración en vivo de nuestro MVP. Aquí vemos la interfaz web conectada directamente a nuestra API en FastAPI.<br>
-      Como caso de prueba oficial evaluado por el equipo, ingresamos el tema: <em>'Cuidado y tenencia responsable de mascotas'</em>. En el selector vemos las opciones de Nivel Educativo:<br>
-      • En <strong>Básica (1° a 4°)</strong>, el sistema adopta un lenguaje sumamente lúdico y afectivo.<br>
-      • En <strong>Básica (5° a 8°)</strong>, incorpora analogías cotidianas juveniles y mecánicas de cuidado sin abusar de jerga.<br>
-      • En <strong>Enseñanza Media</strong>, calibramos el modelo para exigir un tono reflexivo, maduro y serio, prohibiendo expresiones de videojuegos forzadas como 'lag mental' o 'servidor multijugador'.<br>
-      • En <strong>Educación Superior</strong>, asume rigor metodológico y sanitario profesional.<br><br>
-      Seleccionamos Enseñanza Media, 15 minutos y pulsamos 'Generar Clase'. En este momento, LangGraph ejecuta secuencialmente los nodos. Recibimos la respuesta con el Score del Agente Revisor (&ge; 85%), autorizando el renderizado.<br>
-      Reproducimos el video MP4 resultante: noten la fluidez de la locución en español, la ilustración y la franja Lower-Third 100% sincronizada».<br>
-      <em>(Consejo: Si la red externa tiene retraso, reproduzcan inmediatamente el video de respaldo de la columna derecha)</em>.`,
-
-      // Slide 6
-      `<strong>Expositor 2 (Pablo):</strong><br>
-      «Las pruebas técnicas automatizadas de la E2 respaldan cuantitativamente nuestra arquitectura:<br>
-      El Agente Revisor otorgó a nuestro MVP un Score Global del 90.4%, destacando un 95/100 en Alineación Objetivo-Contenido y 90/100 en Correspondencia Locución-Imagen-Texto.<br>
-      En términos de eficiencia docente, logramos reducir el tiempo de preparación de una clase multimedia estructurada de 6 horas de trabajo manual no asistido a un pipeline que toma menos de 45 segundos de cómputo automatizado».`,
-
-      // Slide 7
-      `<strong>Expositor 3 (Francisco):</strong><br>
-      «Para la Entrega Final (E3) hemos definido una hoja de ruta con 3 hitos clave de ingeniería:<br>
-      1. Hito 10: Optimización y Calidad de Ilustraciones con IA, resolviendo el Concept Bleeding o mezclas anatómicas en modelos abiertos mediante prompts negativos y modelos de mayor resolución didáctica.<br>
-      2. Hito 11: Empaquetado Multimodal y Recursos Editables, entregando el kit descargable completo: guion editable, audios e imágenes independientes, y empaquetado SCORM/HTML5 para Canvas y Moodle.<br>
-      3. Hito 12: Optimización de Rendimiento mediante asyncio.gather para síntesis concurrente y despliegue del entorno reproducible para la defensa final de titulación».`,
-
-      // Slide 8
-      `<strong>Expositor 1 (Rodrigo):</strong><br>
-      «En conclusión, este proyecto demuestra que la inteligencia artificial en educación debe operar como un sistema modular de ingeniería guiado por objetivos pedagógicos, supervisado por auditorías analíticas y ensamblado de forma determinista.<br>
-      Agradecemos su atención y quedamos a disposición de la comisión para responder sus preguntas. Muchas gracias».`
-    ];
 
     // Elementos DOM
     const btnPrev = document.getElementById('btn-prev');
     const btnNext = document.getElementById('btn-next');
     const slideCounter = document.getElementById('slide-counter');
     const progressBar = document.getElementById('progress-bar');
-    const notesDrawer = document.getElementById('notes-drawer');
-    const notesContent = document.getElementById('notes-content');
-    const btnNotes = document.getElementById('btn-notes');
-    const closeNotes = document.getElementById('close-notes');
     const btnFs = document.getElementById('btn-fs');
     const diagramBox = document.getElementById('diagram-container');
     const modalImg = document.getElementById('modal-img');
@@ -1098,9 +954,6 @@
 
       btnPrev.disabled = currentSlide === 0;
       btnNext.disabled = currentSlide === totalSlides - 1;
-
-      // Actualizar notas
-      notesContent.innerHTML = speakerNotes[currentSlide] || "Sin notas para esta diapositiva.";
     }
 
     // Navegación
@@ -1113,21 +966,12 @@
         showSlide(currentSlide + 1);
       } else if (e.key === 'ArrowLeft' || e.key === 'PageUp') {
         showSlide(currentSlide - 1);
-      } else if (e.key.toLowerCase() === 'n') {
-        toggleNotes();
       } else if (e.key.toLowerCase() === 'f') {
         toggleFullScreen();
       } else if (e.key === 'Escape') {
         modalImg.classList.remove('open');
       }
     });
-
-    // Notas del orador
-    function toggleNotes() {
-      notesDrawer.classList.toggle('open');
-    }
-    btnNotes.addEventListener('click', toggleNotes);
-    closeNotes.addEventListener('click', () => notesDrawer.classList.remove('open'));
 
     // Pantalla completa
     function toggleFullScreen() {
@@ -1144,15 +988,6 @@
       diagramBox.addEventListener('click', () => modalImg.classList.add('open'));
     }
     modalImg.addEventListener('click', () => modalImg.classList.remove('open'));
-
-    // Cronómetro en vivo
-    let secondsElapsed = 0;
-    setInterval(() => {
-      secondsElapsed++;
-      const mins = String(Math.floor(secondsElapsed / 60)).padStart(2, '0');
-      const secs = String(secondsElapsed % 60).padStart(2, '0');
-      document.getElementById('timer').textContent = `⏱️ ${mins}:${secs}`;
-    }, 1000);
 
     // Inicializar
     showSlide(0);
