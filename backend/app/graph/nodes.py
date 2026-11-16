@@ -244,9 +244,8 @@ async def pedagogy_agent_node(state: ClassDesignState) -> Dict[str, Any]:
     if feedback:
         prompt += f"\nObservaciones para corregir: {feedback[-1]}\n"
 
-    # Regulación de Créditos: Si Quotas está habilitado, realiza la Fase 1 (tarea ligera de 3 etapas con max_tokens acotado)
-    # Si está deshabilitado o no responde, usa Gemini (cuenta del alumno) o OpenAI (profesor)
-    providers = [get_institutional_llm, get_gemini_llm, get_openai_llm] if settings.use_institutional_quota else [get_gemini_llm, get_openai_llm]
+    # Prioridad: 1) OpenAI (Profesor Guía - respuesta rápida y estructurada), 2) Gemini (Alumno)
+    providers = [get_institutional_llm, get_openai_llm, get_gemini_llm] if settings.use_institutional_quota else [get_openai_llm, get_gemini_llm]
     plan, provider_used = await try_generate_structured(
         providers=providers,
         schema=PedagogicalPlan,
@@ -322,10 +321,8 @@ async def theory_agent_node(state: ClassDesignState) -> Dict[str, Any]:
         f"\nIMPORTANTE: Redacta la explicación, la analogía y el guion oral adaptándolos al interés y lenguaje de estudiantes de {age_ctx['age_range']}. Todo 100% en español.\n"
     )
 
-    # Regulación de Créditos: La Fase 2 es la más densa en tokens (teoría extensa, analogía, locución y glosario).
-    # Se asigna a Google Gemini (cuota masiva gratuita en Google AI Studio) y de respaldo a OpenAI (profesor).
-    # Se excluye Quotas de esta fase pesada para no drenar los 50.000 créditos diarios de la universidad.
-    providers = [get_gemini_llm, get_openai_llm]
+    # Prioridad: 1) OpenAI (Profesor Guía - respuesta rápida y estructurada), 2) Gemini (Alumno)
+    providers = [get_openai_llm, get_gemini_llm]
     theory, provider_used = await try_generate_structured(
         providers=providers,
         schema=TheoryContent,
@@ -389,8 +386,8 @@ async def audiovisual_agent_node(state: ClassDesignState) -> Dict[str, Any]:
         f"\nREGLA OBLIGATORIA DE IDIOMA: Todo el contenido (locución, on_screen_text y ai_image_prompt) DEBE SER ESTRICTAMENTE EN ESPAÑOL. El texto en pantalla (on_screen_text) debe ser corto (máximo 8 palabras).\n"
     )
 
-    # Prioridad: 1) Gemini (Alumno), 2) OpenAI (Profesor)
-    providers = [get_gemini_llm, get_openai_llm]
+    # Prioridad: 1) OpenAI (Profesor Guía - respuesta rápida y estructurada), 2) Gemini (Alumno)
+    providers = [get_openai_llm, get_gemini_llm]
     storyboard, provider_used = await try_generate_structured(
         providers=providers,
         schema=AudiovisualStoryboard,

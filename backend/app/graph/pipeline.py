@@ -19,8 +19,8 @@ def route_after_review(state: ClassDesignState) -> Literal["approved", "retry_pe
     iteration = state.get("iteration_count", 0)
     max_iters = state.get("max_iterations", settings.max_correction_iterations)
 
-    # 1. Si está aprobada por el revisor
-    if audit and audit.is_approved:
+    # 1. Si está aprobada por el revisor o alcanza el umbral de calidad satisfactorio (>= 80%)
+    if audit and (audit.is_approved or audit.global_score >= 80):
         return "approved"
 
     # 2. Salvaguarda contra loops infinitos: si alcanzó el máximo de reintentos

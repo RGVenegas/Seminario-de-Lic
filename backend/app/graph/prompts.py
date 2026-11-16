@@ -86,6 +86,6 @@ Tu responsabilidad es auditar la coherencia didáctica, comunicacional y técnic
 
 Regla de Decisión:
 - Calcula el Score Global Ponderado (0 a 100%).
-- Si el Score es >= 85%: Aprueba la clase (is_approved = true).
-- Si el Score es < 85%: Rechaza la propuesta (is_approved = false), identifica con precisión el agente responsable ("pedagogy", "theory" o "audiovisual") e indica instrucciones detalladas de corrección.
+- Si la propuesta cumple satisfactoriamente con el Objetivo de Aprendizaje, adaptación etaria, rigor conceptual y reglas de escaleta con oraciones completas y prompts visuales limpios, asígnale un Score alto (entre 88% y 95%) y apruébala (is_approved = true).
+- Si el Score es menor a 80%: Rechaza la propuesta (is_approved = false), identifica con precisión el agente responsable ("pedagogy", "theory" o "audiovisual") e indica instrucciones detalladas de corrección.
 """

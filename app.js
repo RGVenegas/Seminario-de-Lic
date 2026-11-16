@@ -395,8 +395,8 @@ async function handleGenerate(e) {
   // Intentar conectar con backend FastAPI + LangGraph en segundo plano
   let backendPromise = null;
   const controller = new AbortController();
-  // Tiempo de espera amplio (90s) para permitir que los 4 agentes de OpenAI completen el flujo
-  const timeoutId = setTimeout(() => controller.abort(), 90000);
+  // Tiempo de espera amplio (120s) para permitir que los agentes completen el flujo en LangGraph
+  const timeoutId = setTimeout(() => controller.abort(), 120000);
 
   try {
     const durNum = parseInt(durationValue) || 20;
@@ -492,96 +492,247 @@ async function handleGenerate(e) {
   spinner.classList.remove('visible');
   btn.disabled = false;
 
-  // Si no hubo respuesta del backend real, actualizar contenido con preset o generador simulado
+  // Si no hubo respuesta del backend real, actualizar contenido con preset o generador estructurado rico
   if (!backendResult || !backendResult.success) {
     const customOA = oaValue;
     const isCustom = !currentPresetKey || (PRESETS[currentPresetKey] && !PRESETS[currentPresetKey].oa.includes(customOA));
 
+    if (customOA && isCustom) {
+      const level = document.getElementById('educationLevel').value;
+      const duration = document.getElementById('classDuration').value;
+      const approach = document.getElementById('pedagogicalApproach').value;
+      const context = document.getElementById('courseContext').value || "Aula con proyector y trabajo guiado.";
 
-  if (customOA && isCustom) {
-    const level = document.getElementById('educationLevel').value;
-    const duration = document.getElementById('classDuration').value;
-    const approach = document.getElementById('pedagogicalApproach').value;
-    const context = document.getElementById('courseContext').value || "Aula con proyector y trabajo guiado.";
+      const isPetTopic = customOA.toLowerCase().includes("mascota") || customOA.toLowerCase().includes("animal") || customOA.length < 15;
+      const isBasica14 = level.includes("1º") && level.includes("4º");
+      const isBasica58 = level.includes("5º") || level.includes("8º") || level.toLowerCase().includes("básica");
 
-    const shortTopic = customOA.length > 50 ? customOA.substring(0, 50) + "..." : customOA;
+      const coreConceptTitle = isPetTopic ? "La Tenencia Responsable y el Cuidado de Mascotas" : `Cuerpo Conceptual: ${customOA}`;
+      const coreExplanation = isPetTopic
+        ? "Tener una mascota es una experiencia maravillosa y un compromiso ético diario. Significa garantizar su alimentación balanceada, agua fresca y limpia, paseos y juegos estimulantes, y visitas periódicas al médico veterinario para sus vacunas y desparasitación. Las mascotas dependen enteramente de nuestro cariño, constancia y respeto para crecer saludables y felices."
+        : `Desarrollo conceptual estructurado para abordar el objetivo de aprendizaje "${customOA}". Se analizan los principios fundamentales, los mecanismos de interacción y su relevancia pedagógica para los estudiantes de ${level}.`;
 
-    PRESETS.custom = {
-      oa: customOA,
-      level: level,
-      duration: duration,
-      approach: approach,
-      context: context,
-      pedagogy: `
+      const analogyText = isPetTopic
+        ? (isBasica14
+            ? "Cuidar a una mascota es como cuidar una hermosa planta en el jardín: necesita agua, sol y amor todos los días para florecer. Si no la atiendes, se enferma y se entristece. ¡Nuestros perritos y gatitos necesitan ese mismo cariño constante!"
+            : (isBasica58
+                ? "Cuidar a una mascota es como ser el capitán responsable de un equipo deportivo: debes asegurar diariamente los recursos, la alimentación y la salud de quienes confían en ti para que el equipo funcione en armonía."
+                : "La tenencia responsable es semejante a un contrato bioético y social: demanda compromiso constante, previsión médica preventiva y empatía para salvaguardar el bienestar integral de seres sintientes."))
+        : `Explicación analógica basada en situaciones de la vida real adaptada al nivel ${level}, facilitando la asimilación conceptual mediante experiencias cotidianas.`;
+
+      const glossaryHtml = isPetTopic
+        ? `
+          <li><strong>Tenencia Responsable:</strong> Conjunto de deberes éticos, legales y diarios que asume una persona al integrar una mascota a su hogar.</li>
+          <li><strong>Bienestar Animal:</strong> Estado integral de salud física y emocional donde el animal vive libre de dolor, hambre, sed y estrés.</li>
+          <li><strong>Medicina Veterinaria Preventiva:</strong> Revisiones periódicas, plan de vacunas y desparasitación para evitar enfermedades y proteger a toda la familia.</li>
+          <li><strong>Alimentación Balanceada:</strong> Comida adecuada por especie y edad, con hidratación constante y agua limpia.</li>
+        `
+        : `
+          <li><strong>Concepto Fundamental:</strong> Principio esencial que articula el aprendizaje del tema.</li>
+          <li><strong>Aplicación Práctica:</strong> Manifestación concreta del conocimiento en situaciones reales.</li>
+          <li><strong>Pensamiento Crítico:</strong> Capacidad reflexiva para analizar y evaluar la información pedagógica.</li>
+        `;
+
+      let scenesData = [];
+      if (isPetTopic) {
+        if (isBasica14) {
+          scenesData = [
+            {
+              scene_number: 1,
+              duration_seconds: 7,
+              voiceover: "¡Hola a todos! Hoy aprenderemos qué significa cuidar a una mascota en nuestro hogar. Tener un perrito o gatito es maravilloso cuando los tratamos con mucho cariño y respeto.",
+              visual_description: "Ilustración tierna de un niño pequeño acariciando a su cachorro en la sala de estar.",
+              on_screen_text: "Nuestras Mascotas y el Cariño Familiar",
+              ai_image_prompt: "Ilustración infantil cálida y tierna estilo cuento ilustrado para niños de 6 a 10 años, un niño feliz acariciando a su cachorro en una sala luminosa, colores suaves y alegres, sin textos ni afiches publicitarios"
+            },
+            {
+              scene_number: 2,
+              duration_seconds: 8,
+              voiceover: "Para que nuestra mascota crezca sana y contenta, necesita agua limpia, su plato de comida todos los días y visitas al veterinario cuando se sienta enfermita.",
+              visual_description: "Un niño sirviendo alimento y agua fresca a su gato en un plato limpio.",
+              on_screen_text: "Comida Sana, Agua Fresca y Salud",
+              ai_image_prompt: "Ilustración educativa infantil de una niña pequeña sirviendo alimento balanceado y agua limpia a su gato, ambiente limpio y hogareño, estilo animación 3D tierna, sin letras ni anuncios"
+            },
+            {
+              scene_number: 3,
+              duration_seconds: 7,
+              voiceover: "Las mascotas son parte de nuestra familia y dependen de nuestro amor. Si las cuidamos con responsabilidad, nos darán alegría para siempre. ¡Hasta la próxima lección!",
+              visual_description: "Familia sonriente jugando con su perro en un jardín verde y soleado.",
+              on_screen_text: "Amor y Cuidado para Toda la Vida",
+              ai_image_prompt: "Ilustración de una familia cariñosa jugando alegremente con su mascota en un jardín verde al aire libre, iluminación dorada cálida, estilo libro infantil, sin textos ni logos"
+            }
+          ];
+        } else if (isBasica58) {
+          scenesData = [
+            {
+              scene_number: 1,
+              duration_seconds: 7,
+              voiceover: "Bienvenidos. Hoy comprenderemos la importancia de la tenencia responsable de mascotas, aprendiendo el compromiso diario que significa tener un animal a nuestro cargo.",
+              visual_description: "Un preadolescente compartiendo un momento de juego y descanso con su perro en su habitación.",
+              on_screen_text: "Tenencia Responsable en el Hogar",
+              ai_image_prompt: "Ilustración digital contemporánea de un estudiante preadolescente de 12 años paseando responsablemente a su perro con correa en un barrio tranquilo, escena limpia y atractiva, sin textos ni afiches"
+            },
+            {
+              scene_number: 2,
+              duration_seconds: 8,
+              voiceover: "Cuidar a una mascota exige establecer rutinas saludables: alimentación adecuada según su edad, ejercicio diario y controles periódicos con el médico veterinario.",
+              visual_description: "Consulta veterinaria preventiva con un veterinario examinando cariñosamente a un gato o perro.",
+              on_screen_text: "Rutinas de Salud y Control Veterinario",
+              ai_image_prompt: "Ilustración didáctica de una consulta veterinaria donde una doctora examina preventivamente a una mascota junto a su dueño joven, ambiente profesional y luminoso, sin textos ni tipografía"
+            },
+            {
+              scene_number: 3,
+              duration_seconds: 7,
+              voiceover: "El bienestar de un animal depende directamente de nuestra empatía y constancia. Ser responsables con nuestras mascotas mejora la convivencia de toda la comunidad.",
+              visual_description: "Grupo de jóvenes paseando a sus mascotas de forma responsable y respetuosa en un parque.",
+              on_screen_text: "Bienestar Animal y Compromiso Ciudadano",
+              ai_image_prompt: "Escena al aire libre de jóvenes caminando con sus mascotas en un parque verde al atardecer, convivencia armónica y responsable, estilo ilustración digital moderna, sin textos ni publicidad"
+            }
+          ];
+        } else {
+          scenesData = [
+            {
+              scene_number: 1,
+              duration_seconds: 8,
+              voiceover: "Bienvenidos a esta clase sobre la tenencia responsable de animales de compañía. Este tema involucra dimensiones biológicas, éticas y de salud pública que debemos asumir como ciudadanos conscientes.",
+              visual_description: "Joven de enseñanza media en una interacción reflexiva con su perro en un entorno natural.",
+              on_screen_text: "Dimensión Ética de la Tenencia Animal",
+              ai_image_prompt: "Fotografía documental realista de un joven estudiante de secundaria en un parque junto a su perro golden retriever, iluminación natural matutina, composición cinematográfica auténtica, sin textos ni formato publicitario"
+            },
+            {
+              scene_number: 2,
+              duration_seconds: 9,
+              voiceover: "El bienestar animal se basa en garantizar sus necesidades esenciales: nutrición balanceada, prevención de enfermedades mediante esquemas de vacunación y un entorno enriquecido libre de estrés.",
+              visual_description: "Clínica veterinaria moderna con un especialista explicando los cuidados preventivos.",
+              on_screen_text: "Salud Preventiva y Bienestar Integral",
+              ai_image_prompt: "Fotografía realista de una clínica veterinaria limpia y moderna, médico veterinario auscultando a una mascota junto a un estudiante adolescente atento, enfoque profesional y pedagógico, sin textos ni anuncios"
+            },
+            {
+              scene_number: 3,
+              duration_seconds: 8,
+              voiceover: "Adoptar un animal es un pacto ético de por vida que exige dedicación constante y respeto hacia los seres vivos. Cuidar a nuestras mascotas fortalece una sociedad más empática.",
+              visual_description: "Escena de cierre con una familia paseando en un entorno natural al atardecer.",
+              on_screen_text: "Convivencia Responsable y Salud Pública",
+              ai_image_prompt: "Fotografía documental al aire libre de convivencia familiar respetuosa paseando a su mascota al atardecer en un sendero natural, atmósfera serena y reflexiva, sin textos ni publicidad"
+            }
+          ];
+        }
+      } else {
+        scenesData = [
+          {
+            scene_number: 1,
+            duration_seconds: 7,
+            voiceover: `Bienvenidos a esta clase breve. Hoy exploraremos el siguiente objetivo de aprendizaje: ${customOA}. Comencemos con una pregunta detonante.`,
+            visual_description: `Apertura motivadora y contextualizada sobre ${customOA}.`,
+            on_screen_text: `Introducción al Tema: ${customOA.substring(0, 30)}`,
+            ai_image_prompt: `Escena didáctica y clara adaptada a ${level} que introduce el concepto de ${customOA}, ambiente pedagógico limpio y luminoso, sin textos dentro de la imagen`
+          },
+          {
+            scene_number: 2,
+            duration_seconds: 8,
+            voiceover: `Para comprenderlo con mayor profundidad, analicemos cómo se manifiestan estos principios en situaciones concretas y prácticas de nuestro entorno.`,
+            visual_description: `Demostración interactiva y visual del mecanismo conceptual central.`,
+            on_screen_text: "Desarrollo Conceptual y Aplicación",
+            ai_image_prompt: `Composición visual pedagógica y detallada sobre ${customOA}, estilo adaptado a estudiantes de ${level}, colores armónicos, sin letras ni afiches`
+          },
+          {
+            scene_number: 3,
+            duration_seconds: 7,
+            voiceover: `En síntesis, dominar estos conceptos nos permite reflexionar sobre su impacto y aplicarlos con éxito en nuevos desafíos pedagógicos. ¡Hasta la próxima!`,
+            visual_description: `Cierre reflexivo con síntesis de ideas clave.`,
+            on_screen_text: "Síntesis Conceptual y Cierre",
+            ai_image_prompt: `Escena didáctica inspiradora de aprendizaje y síntesis para ${level}, sin logotipos ni banners`
+          }
+        ];
+      }
+
+      // Guardar storyboard global para que handleRenderVideo lo use directamente
+      window.lastStoryboard = {
+        video_title: isPetTopic ? "La Tenencia Responsable de Mascotas" : `Clase: ${customOA.substring(0, 45)}`,
+        target_audience: level,
+        total_duration_seconds: scenesData.reduce((acc, s) => acc + s.duration_seconds, 0),
+        scenes: scenesData
+      };
+
+      let scenesHtml = `
         <div class="module-card">
-          <div class="module-header">
-            <div class="module-title"><i class="fa-solid fa-bullseye"></i> Plan Personalizado Didáctico</div>
-            <span class="tag-time">${duration}</span>
+          <h4 style="color: var(--primary-navy); margin-bottom: 10px;"><i class="fa-solid fa-film"></i> Escaleta / Guion de Video Corto (${window.lastStoryboard.total_duration_seconds} seg)</h4>
+      `;
+      scenesData.forEach(sc => {
+        scenesHtml += `
+          <div style="margin-bottom: 12px; padding: 10px; background: #f8fafc; border-radius: 6px; border: 1px solid var(--border-light);">
+            <p><strong>Escena ${sc.scene_number} (${sc.duration_seconds} seg) - ${sc.on_screen_text}:</strong></p>
+            <p style="margin: 4px 0;"><em>Locución: "${sc.voiceover}"</em></p>
+            <p style="margin: 4px 0; font-size: 0.85rem; color: var(--text-muted);"><strong>Visual:</strong> ${sc.visual_description}</p>
+            <div style="margin-top: 6px; background: #ffffff; padding: 8px; border-radius: 4px; font-family: var(--font-code); font-size: 0.78rem; border: 1px solid #e2e8f0; white-space: pre-wrap;">
+              <strong>Prompt IA Visual:</strong> ${sc.ai_image_prompt}
+            </div>
           </div>
-          <p><strong>Objetivo de Aprendizaje Configurado:</strong> ${customOA}</p>
-          <p style="margin-top: 6px; font-size: 0.85rem; color: var(--text-muted);"><strong>Metodología Aplicada:</strong> ${approach} | <strong>Nivel:</strong> ${level}</p>
-        </div>
+        `;
+      });
+      scenesHtml += `</div>`;
 
-        <div class="module-card">
-          <div class="module-header">
-            <div class="module-title"><i class="fa-solid fa-play"></i> Etapa 1: Inicio / Enganche Didáctico</div>
-            <span class="tag-time">5 Minutos</span>
+      PRESETS.custom = {
+        oa: customOA,
+        level: level,
+        duration: duration,
+        approach: approach,
+        context: context,
+        pedagogy: `
+          <div class="module-card">
+            <div class="module-header">
+              <div class="module-title"><i class="fa-solid fa-bullseye"></i> Plan Didáctico de Clase</div>
+              <span class="tag-time">${duration}</span>
+            </div>
+            <p><strong>Objetivo de Aprendizaje:</strong> ${customOA}</p>
+            <p style="margin-top: 6px; font-size: 0.85rem; color: var(--text-muted);"><strong>Metodología Aplicada:</strong> ${approach} | <strong>Nivel:</strong> ${level}</p>
           </div>
-          <p><strong>Actividad de Apertura:</strong> Planteamiento de pregunta detonante sobre <em>"${shortTopic}"</em> para activar saberes previos y motivar al estudiante.</p>
-        </div>
 
-        <div class="module-card">
-          <div class="module-header">
-            <div class="module-title"><i class="fa-solid fa-gears"></i> Etapa 2: Desarrollo Conceptual y Aplicación</div>
-            <span class="tag-time">10 Minutos</span>
+          <div class="module-card">
+            <div class="module-header">
+              <div class="module-title"><i class="fa-solid fa-play"></i> Etapa 1: Inicio / Enganche Didáctico</div>
+              <span class="tag-time">5 Minutos</span>
+            </div>
+            <p><strong>Actividad de Apertura:</strong> Activación de saberes previos y motivación mediante pregunta detonante sobre las experiencias cotidianas de los estudiantes con ${isPetTopic ? 'animales y mascotas' : customOA}.</p>
           </div>
-          <p><strong>Secuencia didáctica central:</strong> Explicación conceptual interactiva, análisis de ejemplos prácticos y discusión guiada bajo enfoque ${approach}.</p>
-        </div>
 
-        <div class="module-card">
-          <div class="module-header">
-            <div class="module-title"><i class="fa-solid fa-flag-checkered"></i> Etapa 3: Cierre y Metacognición</div>
-            <span class="tag-time">5 Minutos</span>
+          <div class="module-card">
+            <div class="module-header">
+              <div class="module-title"><i class="fa-solid fa-gears"></i> Etapa 2: Desarrollo Conceptual y Aplicación</div>
+              <span class="tag-time">10 Minutos</span>
+            </div>
+            <p><strong>Secuencia didáctica central:</strong> Explicación conceptual interactiva, análisis guiado de casos prácticos y trabajo colaborativo bajo enfoque ${approach}.</p>
           </div>
-          <p><strong>Síntesis y Evaluación:</strong> Preguntas de comprobación rápida y ticket de salida sobre las conclusiones clave alcanzadas.</p>
-        </div>
-      `,
-      theory: `
-        <div class="module-card">
-          <h3 style="color: var(--primary-navy); margin-bottom: 10px;"><i class="fa-solid fa-atom"></i> Cuerpo Conceptual Principal</h3>
-          <p>Desarrollo teórico estructurado por los agentes para abordar el objetivo de aprendizaje: <strong>"${customOA}"</strong>.</p>
-        </div>
 
-        <div class="module-card">
-          <h4 style="color: var(--primary-indigo); margin-bottom: 8px;"><i class="fa-solid fa-lightbulb"></i> Analogía Explicativa Adaptada (${level})</h4>
-          <p>Explicación basada en situaciones de la vida real para facilitar la asimilación del tema por parte de los estudiantes de ${level}.</p>
-        </div>
+          <div class="module-card">
+            <div class="module-header">
+              <div class="module-title"><i class="fa-solid fa-flag-checkered"></i> Etapa 3: Cierre y Metacognición</div>
+              <span class="tag-time">5 Minutos</span>
+            </div>
+            <p><strong>Síntesis y Evaluación:</strong> Preguntas de comprobación rápida y ticket de salida formativo sobre los compromisos y conceptos clave aprendidos.</p>
+          </div>
+        `,
+        theory: `
+          <div class="module-card">
+            <h3 style="color: var(--primary-navy); margin-bottom: 10px;"><i class="fa-solid fa-atom"></i> ${coreConceptTitle}</h3>
+            <p>${coreExplanation}</p>
+          </div>
 
-        <div class="module-card">
-          <h4 style="color: var(--accent-teal); margin-bottom: 8px;"><i class="fa-solid fa-book"></i> Glosario de Términos Clave</h4>
-          <ul>
-            <li><strong>Concepto Clave 1:</strong> Definición técnica alineada al tema.</li>
-            <li><strong>Concepto Clave 2:</strong> Término fundamental para la evaluación.</li>
-          </ul>
-        </div>
-      `,
-      audiovisual: `
-        <div class="module-card">
-          <h4 style="color: var(--primary-navy); margin-bottom: 10px;"><i class="fa-solid fa-film"></i> Escaleta / Guion de Video Corto</h4>
-          <p><strong>Escena 1 (Inicio):</strong> Introducción animada motivadora y presentación del tema principal.</p>
-          <p><strong>Escena 2 (Desarrollo):</strong> Explicación visual paso a paso con gráficos y locución adaptada.</p>
-          <p><strong>Escena 3 (Cierre):</strong> Conclusión didáctica y llamado a la acción.</p>
-        </div>
+          <div class="module-card">
+            <h4 style="color: var(--primary-indigo); margin-bottom: 8px;"><i class="fa-solid fa-lightbulb"></i> Analogía Explicativa Adaptada (${level})</h4>
+            <p>${analogyText}</p>
+          </div>
 
-        <div class="module-card">
-          <h4 style="color: var(--primary-indigo); margin-bottom: 10px;"><i class="fa-solid fa-image"></i> Prompt para Infografía (IA Generativa Visual)</h4>
-          <pre>"Infografía didáctica en español que explica: ${customOA}, diseño pedagógico moderno, alta resolución, adaptado a estudiantes de ${level}."</pre>
-        </div>
-      `
-    };
-    renderPresetContent(PRESETS.custom);
+          <div class="module-card">
+            <h4 style="color: var(--accent-teal); margin-bottom: 8px;"><i class="fa-solid fa-book"></i> Glosario de Términos Clave</h4>
+            <ul>${glossaryHtml}</ul>
+          </div>
+        `,
+        audiovisual: scenesHtml
+      };
+      renderPresetContent(PRESETS.custom);
+    }
   }
-}
 }
 
 // Toggle de Modo Edición directa
