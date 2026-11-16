@@ -348,6 +348,15 @@ function renderLangGraphContent(data) {
     const rep = data.audit_report;
     const scoreText = document.getElementById('scoreText');
     if (scoreText) scoreText.innerText = `${rep.global_score}%`;
+    const scoreCircle = document.getElementById('scoreCircle');
+    if (scoreCircle) {
+      scoreCircle.style.background = `conic-gradient(var(--accent-emerald) ${rep.global_score}%, var(--border-light) ${rep.global_score}% 100%)`;
+    }
+    const auditTitle = document.getElementById('auditTitle');
+    if (auditTitle) {
+      const statusLabel = rep.is_approved ? 'APROBADA' : 'REVISIÓN REQUERIDA';
+      auditTitle.innerText = `Auditoría de Calidad Pedagógica: ${statusLabel}`;
+    }
     const badge = document.getElementById('currentStatusBadge');
     if (badge) {
       badge.style.background = '#dbeafe';
@@ -774,10 +783,12 @@ function exportMarkdown() {
   const avText = avEl ? avEl.innerText : '';
   const auditText = auditEl ? auditEl.innerText : '';
 
+  const scoreVal = document.getElementById('scoreText') ? document.getElementById('scoreText').innerText : '85%';
+
   const mdContent = `# Propuesta de Clase Multimedia Breve
 **Objetivo de Aprendizaje:** ${oa}
 **Nivel Educativo:** ${level} | **Duración:** ${duration}
-**Estado Auditoría Agente Revisor:** DAG VALIDADO & APROBADO (Score 94%)
+**Estado Auditoría Agente Revisor:** DAG VALIDADO & APROBADO (Score ${scoreVal})
 
 ---
 

@@ -3,7 +3,7 @@ from typing import Optional
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, Response
 from pydantic import BaseModel
 
 from .core.config import settings
@@ -60,6 +60,11 @@ async def serve_css():
 async def serve_js():
     js_path = os.path.join(project_root, "app.js")
     return FileResponse(js_path, media_type="application/javascript")
+
+
+@app.get("/favicon.ico", include_in_schema=False)
+async def favicon():
+    return Response(status_code=204)
 
 
 @app.get("/api/info")
