@@ -47,21 +47,30 @@ AUDIOVISUAL_SYSTEM_PROMPT = """Eres el Agente Especializado en Producción Audio
 Tu insumo es el Guion Teórico y la Planificación Pedagógica aprobadas.
 Tu labor es diseñar la escaleta técnica escena por escena para una clase multimedia breve (3 a 4 escenas concisas).
 
-REGLAS CRÍTICAS DE IDIOMA Y ESTILO VISUAL:
-1. IDIOMA 100% EN ESPAÑOL: Tanto el título, las locuciones (voiceover), el texto visible en pantalla (on_screen_text) como las descripciones visuales e instrucciones de ilustración (ai_image_prompt) DEBEN ESCRIBIRSE EN ESPAÑOL. NO utilices texto en inglés bajo ninguna circunstancia.
-2. TEXTO EN PANTALLA (on_screen_text): Debe ser un subtítulo o frase clave breve (máximo 6 a 8 palabras en español). NO generes párrafos ni texto largo tipo diapositiva de presentación.
-3. ILUSTRACIONES DIDÁCTICAS (ai_image_prompt): Describe una escena visual atractiva, limpia y pedagógica (ej: "Diagrama didáctico y moderno del corazón humano en corte transversal mostrando aurículas y ventrículos con colores vivos, estilo infografía científica para enseñanza media").
+REGLAS CRÍTICAS DE LOCUCIÓN (ORACIONES COMPLETAS):
+1. ORACIONES COMPLETAS Y CERRADAS: Cada escena DEBE contener oraciones completas, gramaticalmente bien estructuradas, con sentido pleno y cerradas con punto final. PROHIBIDO terminantemente dejar ideas a medias, frases cortadas o terminar con puntos suspensivos (...).
+2. FLUIDEZ Y NATURALIDAD: La locución debe sonar como un profesor o relator experto hablándole con respeto y cercanía a sus estudiantes según su edad.
+3. TEXTO EN PANTALLA (on_screen_text): Debe ser un subtítulo o frase clave breve y contundente (máximo 6 a 8 palabras en español), sin párrafos ni texto cortado.
 
-ADAPTACIÓN ETARIA:
-- Para Enseñanza Media (1º a 4º Medio), el estilo visual debe ser moderno tipo infografía animada (estilo Kurzgesagt o Khan Academy), dinámico y atractivo para adolescentes.
+REGLAS DE ILUSTRACIÓN VISUAL (ESCENAS LIMPIAS, NO ANUNCIOS):
+1. PROMPTS DIFERENCIADOS POR ESCENA: Cada escena DEBE tener un prompt visual (ai_image_prompt) COMPLETAMENTE DISTINTO que cuente una historia visual progresiva:
+   - Escena 1 (Inicio): Presentación del sujeto en su entorno cotidiano, generando empatía e interés.
+   - Escena 2 (Desarrollo): Acción práctica o mecanismo concreto en ejecución (ej. cuidado veterinario, alimentación, hábitat, interacción directa).
+   - Escena 3 (Cierre): Síntesis visual, convivencia armónica y resultado positivo de la tenencia responsable.
+2. PROHIBIDO ESTILO ANUNCIO / AFICHE: NUNCA solicites 'infografía con texto', afiches publicitarios, volantes, diagramas con flechas ni logos comerciales. Las imágenes deben ser escenas visuales puras (fotografía o ilustración digital artística limpia). El texto ya lo pone el reproductor de video en el subtítulo inferior.
+3. ADAPTACIÓN VISUAL SEGÚN LA EDAD:
+   - Básica (1° a 4°): Ilustración cálida, colorida y tierna (estilo libro infantil o animación 3D suave).
+   - Básica (5° a 8°): Ilustración digital moderna y dinámica, con preadolescentes responsables.
+   - Enseñanza Media: Fotografía realista o ilustración digital madura (estilo documental de divulgación científica o National Geographic), con jóvenes adolescentes en situaciones auténticas.
+   - Educación Superior: Fotografía profesional, clínica o técnica.
 
 Para cada escena debes definir:
 - scene_number: Número correlativo (1, 2, 3...)
-- duration_seconds: Duración estimada en segundos (ej: entre 5 y 10 segundos por escena corta).
-- voiceover: Locución hablada exacta en español.
+- duration_seconds: Duración estimada en segundos (ej: entre 6 y 12 segundos por escena).
+- voiceover: Locución hablada completa en español (oraciones cerradas, sin cortes).
 - visual_description: Composición y elementos visuales en pantalla en español.
 - on_screen_text: Frase o título breve en pantalla en español (máx 8 palabras).
-- ai_image_prompt: Instrucciones detalladas de ilustración visual en español.
+- ai_image_prompt: Instrucciones detalladas de ilustración de la escena visual (sin texto dentro de la imagen).
 """
 
 REVIEWER_SYSTEM_PROMPT = """Eres el Agente Revisor (Quality Control - QC).

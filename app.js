@@ -675,39 +675,108 @@ async function handleRenderVideo() {
 
   let storyboard = window.lastStoryboard;
   if (!storyboard) {
-    // Generar storyboard pedagógico de contingencia basado en el formulario o preset actual
-    const currentOa = document.getElementById('learningObjective').value || "Conservación de la Energía";
+    // Generar storyboard pedagógico adaptado por nivel con oraciones completas y prompts diferenciados
+    const currentOa = (document.getElementById('learningObjective').value || "Mascotas").trim();
     const currentLevel = document.getElementById('educationLevel').value || "Enseñanza Media (1º - 4º Medio)";
-    storyboard = {
-      video_title: `Clase Breve: ${currentOa.substring(0, 45)}`,
-      target_audience: currentLevel,
-      total_duration_seconds: 15,
-      scenes: [
+    const isPetTopic = currentOa.toLowerCase().includes("mascota") || currentOa.toLowerCase().includes("animal") || currentOa.length < 15;
+    const topicPhrase = isPetTopic ? "el cuidado y la tenencia responsable de mascotas" : currentOa.replace(/\.$/, "");
+
+    const isBasica14 = currentLevel.includes("1º") && currentLevel.includes("4º");
+    const isBasica58 = currentLevel.includes("5º") || currentLevel.includes("8º") || currentLevel.toLowerCase().includes("básica");
+
+    let scenesData = [];
+
+    if (isBasica14) {
+      // Estilo para 1º a 4º Básico (Lenguaje lúdico, oraciones completas, ilustración tierna tipo libro infantil)
+      scenesData = [
         {
           scene_number: 1,
-          duration_seconds: 5,
-          voiceover: `Bienvenidos a esta clase breve. Hoy exploraremos el siguiente objetivo de aprendizaje: ${currentOa.substring(0, 100)}.`,
-          visual_description: "Apertura didáctica con título central e infografía ilustrativa.",
-          on_screen_text: `Introducción al Tema: ${currentOa.substring(0, 40)}`,
-          ai_image_prompt: `Ilustración didáctica y moderna para estudiantes de enseñanza media que introduce el concepto de ${currentOa.substring(0, 50)}, estilo infografía científica con colores vivos`
+          duration_seconds: 7,
+          voiceover: "¡Hola a todos! Hoy aprenderemos qué significa cuidar a una mascota en nuestro hogar. Tener un perrito o gatito es maravilloso cuando los tratamos con mucho cariño y respeto.",
+          visual_description: "Ilustración tierna de un niño pequeño acariciando a su cachorro en la sala de estar.",
+          on_screen_text: "Nuestras Mascotas y el Cariño Familiar",
+          ai_image_prompt: "Ilustración infantil cálida y tierna estilo cuento ilustrado para niños de 6 a 10 años, un niño feliz acariciando a su cachorro en una sala luminosa, colores suaves y alegres, sin textos ni afiches publicitarios"
         },
         {
           scene_number: 2,
-          duration_seconds: 5,
-          voiceover: "Para comprenderlo mejor, analicemos cómo se manifiestan estos principios en situaciones concretas de nuestro entorno cotidiano.",
-          visual_description: "Diagrama conceptual interactivo con vectores explicativos.",
-          on_screen_text: "Desarrollo Conceptual y Aplicación en la Vida Real",
-          ai_image_prompt: `Diagrama científico interactivo y claro que explica los mecanismos de ${currentOa.substring(0, 50)}, estilo infografía didáctica para adolescentes`
+          duration_seconds: 8,
+          voiceover: "Para que nuestra mascota crezca sana y contenta, necesita agua limpia, su plato de comida todos los días y visitas al veterinario cuando se sienta enfermita.",
+          visual_description: "Un niño sirviendo alimento y agua fresca a su gato en un plato limpio.",
+          on_screen_text: "Comida Sana, Agua Fresca y Salud",
+          ai_image_prompt: "Ilustración educativa infantil de una niña pequeña sirviendo alimento balanceado y agua limpia a su gato, ambiente limpio y hogareño, estilo animación 3D tierna, sin letras ni anuncios"
         },
         {
           scene_number: 3,
-          duration_seconds: 5,
-          voiceover: "En conclusión: la comprensión de estos principios nos permite explicar cómo funciona el mundo que nos rodea. ¡Nos vemos en la próxima lección!",
-          visual_description: "Síntesis gráfica de conceptos clave y despedida formativa.",
-          on_screen_text: "Síntesis Conceptual y Cierre Metacognitivo",
-          ai_image_prompt: `Lámina infográfica de síntesis con iconos de los conceptos aprendidos, diseño didáctico limpio y moderno en español`
+          duration_seconds: 7,
+          voiceover: "Las mascotas son parte de nuestra familia y dependen de nuestro amor. Si las cuidamos con responsabilidad, nos darán alegría para siempre. ¡Hasta la próxima lección!",
+          visual_description: "Familia sonriente jugando con su perro en un jardín verde y soleado.",
+          on_screen_text: "Amor y Cuidado para Toda la Vida",
+          ai_image_prompt: "Ilustración de una familia cariñosa jugando alegremente con su mascota en un jardín verde al aire libre, iluminación dorada cálida, estilo libro infantil, sin textos ni logos"
         }
-      ]
+      ];
+    } else if (isBasica58) {
+      // Estilo para 5º a 8º Básico (Lenguaje juvenil, oraciones completas, ilustración digital moderna)
+      scenesData = [
+        {
+          scene_number: 1,
+          duration_seconds: 7,
+          voiceover: `Bienvenidos. Hoy comprenderemos la importancia de ${topicPhrase}, aprendiendo el compromiso diario que significa tener un animal a nuestro cargo.`,
+          visual_description: "Un preadolescente compartiendo un momento de juego y descanso con su perro en su habitación.",
+          on_screen_text: "Tenencia Responsable en el Hogar",
+          ai_image_prompt: "Ilustración digital contemporánea de un estudiante preadolescente de 12 años paseando responsablemente a su perro con correa en un barrio tranquilo, escena limpia y atractiva, sin textos ni afiches"
+        },
+        {
+          scene_number: 2,
+          duration_seconds: 8,
+          voiceover: "Cuidar a una mascota exige establecer rutinas saludables: alimentación adecuada según su edad, ejercicio diario y controles periódicos con el médico veterinario.",
+          visual_description: "Consulta veterinaria preventiva con un veterinario examinando cariñosamente a un gato o perro.",
+          on_screen_text: "Rutinas de Salud y Control Veterinario",
+          ai_image_prompt: "Ilustración didáctica de una consulta veterinaria donde una doctora examina preventivamente a una mascota junto a su dueño joven, ambiente profesional y luminoso, sin textos ni tipografía"
+        },
+        {
+          scene_number: 3,
+          duration_seconds: 7,
+          voiceover: "El bienestar de un animal depende directamente de nuestra empatía y constancia. Ser responsables con nuestras mascotas mejora la convivencia de toda la comunidad.",
+          visual_description: "Grupo de jóvenes paseando a sus mascotas de forma responsable y respetuosa en un parque.",
+          on_screen_text: "Bienestar Animal y Compromiso Ciudadano",
+          ai_image_prompt: "Escena al aire libre de jóvenes caminando con sus mascotas en un parque verde al atardecer, convivencia armónica y responsable, estilo ilustración digital moderna, sin textos ni publicidad"
+        }
+      ];
+    } else {
+      // Estilo para Enseñanza Media / Superior (Lenguaje maduro, reflexivo, fotografía/ilustración documental)
+      scenesData = [
+        {
+          scene_number: 1,
+          duration_seconds: 8,
+          voiceover: `Bienvenidos a esta clase sobre ${topicPhrase}. La tenencia de animales de compañía involucra dimensiones biológicas, éticas y de salud pública que debemos asumir como ciudadanos conscientes.`,
+          visual_description: "Joven de enseñanza media en una interacción tranquila y respetuosa con su perro en un entorno natural.",
+          on_screen_text: "Dimensión Ética de la Tenencia Animal",
+          ai_image_prompt: "Fotografía documental realista de un joven estudiante de secundaria en un parque junto a su perro golden retriever, iluminación natural matutina, composición cinematográfica auténtica, sin textos ni formato de afiche publicitario"
+        },
+        {
+          scene_number: 2,
+          duration_seconds: 9,
+          voiceover: "El bienestar animal se basa en garantizar sus necesidades esenciales: nutrición balanceada, prevención de enfermedades mediante esquemas de vacunación y un entorno enriquecido libre de estrés.",
+          visual_description: "Clínica veterinaria moderna con un especialista explicando los cuidados preventivos.",
+          on_screen_text: "Salud Preventiva y Bienestar Integral",
+          ai_image_prompt: "Fotografía realista de una clínica veterinaria limpia y moderna, médico veterinario auscultando a una mascota junto a un estudiante adolescente atento, enfoque profesional y pedagógico, sin textos ni anuncios"
+        },
+        {
+          scene_number: 3,
+          duration_seconds: 8,
+          voiceover: "Adoptar un animal es un pacto ético de por vida que exige dedicación constante y respeto hacia los seres vivos. Cuidar a nuestras mascotas fortalece una sociedad más empática.",
+          visual_description: "Escena de cierre con una familia paseando en un entorno natural al atardecer.",
+          on_screen_text: "Convivencia Responsable y Salud Pública",
+          ai_image_prompt: "Fotografía documental al aire libre de convivencia familiar respetuosa paseando a su mascota al atardecer en un sendero natural, atmósfera serena y reflexiva, sin textos, sin tipografía ni banners"
+        }
+      ];
+    }
+
+    storyboard = {
+      video_title: `Clase Multimedia: ${topicPhrase.substring(0, 45)}`,
+      target_audience: currentLevel,
+      total_duration_seconds: 24,
+      scenes: scenesData
     };
   }
 

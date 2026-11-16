@@ -68,13 +68,16 @@ def _composite_image_16_9(fg_img: Image.Image, output_path: str, width: int = TA
 async def _fetch_openai_sunburst_image(
     prompt: str,
     output_path: str,
+    education_level: str = "Enseñanza Media",
+    scene_number: int = 1,
     width: int = TARGET_WIDTH,
     height: int = TARGET_HEIGHT
 ) -> bool:
     """
     Genera una ilustración didáctica de alta fidelidad utilizando el modelo
     gpt-image-2.6-sunburst de OpenAI.
-    Resuelve el problema de Concept Bleeding y garantiza coherencia anatómica y separación de sujetos.
+    Resuelve el problema de Concept Bleeding, elimina la estética de anuncios o afiches,
+    y adapta el estilo visual estrictamente a la edad y nivel educativo sin texto impreso.
     """
     openai_key = os.getenv("OPENAI_API_KEY", "").strip()
     if not openai_key or openai_key.startswith("tu_") or len(openai_key) < 15:
@@ -86,12 +89,30 @@ async def _fetch_openai_sunburst_image(
         from openai import AsyncOpenAI
         client = AsyncOpenAI(api_key=openai_key)
 
+        # Determinar estética adaptada por nivel etario
+        lvl_lower = (education_level or "").lower()
+        if "1" in lvl_lower and "básic" in lvl_lower:
+            age_style = "Warm and friendly storybook educational illustration, soft natural lighting, gentle 3D digital art suitable for elementary children aged 6 to 10."
+        elif "5" in lvl_lower or "8" in lvl_lower or "básic" in lvl_lower:
+            age_style = "Vibrant contemporary digital illustration, clean educational comic style, engaging and positive for pre-teens aged 10 to 14."
+        elif "superior" in lvl_lower or "univers" in lvl_lower:
+            age_style = "Professional documentary photography or high-end clean scientific photograph, realistic and sober."
+        else: # Enseñanza Media (14 a 18 años)
+            age_style = "Realistic documentary photography or mature modern digital realism, natural lighting, authentic and relatable for high school teenagers aged 14 to 18."
+
+        # Limpiar el prompt de palabras que provoquen estética de anuncio o afiche publicitario
+        clean_prompt = prompt
+        for trigger in ["infografía científica", "infografía didáctica", "infografía", "lámina infográfica", "diagrama interactivo", "afiche", "anuncio", "poster"]:
+            clean_prompt = re.sub(re.escape(trigger), "escena visual educativa", clean_prompt, flags=re.IGNORECASE)
+
         educational_prompt = (
-            f"Educational science illustration: {prompt}. "
-            "Clean pedagogical composition, distinct separated subjects, precise anatomy, vibrant educational colors, horizontal composition."
+            f"A cinematic educational scene showing: {clean_prompt}. "
+            f"Visual Aesthetic: {age_style} "
+            "High aesthetic quality, natural human and animal anatomy, distinct separated subjects, genuine emotional connection, horizontal composition. "
+            "STRICT NEGATIVE CONSTRAINT: Absolutely DO NOT include any text, letters, titles, words, numbers, typography, watermarks, banners, flyers, posters, or advertisement layouts. Pure visual scene only. No ad style, no marketing elements."
         )
 
-        logger.info(f"[OpenAI Sunburst] Generando imagen de alta calidad con {image_model}...")
+        logger.info(f"[OpenAI Sunburst] Generando escena {scene_number} con {image_model} ({education_level})...")
         response = await client.images.generate(
             model=image_model,
             prompt=educational_prompt,
@@ -114,7 +135,7 @@ async def _fetch_openai_sunburst_image(
 
             if raw_img:
                 _composite_image_16_9(raw_img, output_path, width, height)
-                logger.info(f"[OpenAI Sunburst OK] Imagen generada y compuesta exitosamente en 16:9 con {image_model}.")
+                logger.info(f"[OpenAI Sunburst OK] Imagen de escena {scene_number} generada y compuesta exitosamente en 16:9 con {image_model}.")
                 return True
 
     except Exception as e:
@@ -299,9 +320,9 @@ async def generate_scene_image(
     """
     os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
 
-    # 1. Prioridad: OpenAI gpt-image-2.6-sunburst (Máxima fidelidad)
-    logger.info(f"[Imagen Escena {scene_number}] Intentando generación de alta calidad con OpenAI Sunburst...")
-    if await _fetch_openai_sunburst_image(prompt, output_path, width, height):
+    # 1. Prioridad: OpenAI gpt-image-2.6-sunburst (Máxima fidelidad, adaptado a la edad, sin anuncios)
+    logger.info(f"[Imagen Escena {scene_number}] Intentando generación de alta fidelidad con OpenAI Sunburst ({education_level})...")
+    if await _fetch_openai_sunburst_image(prompt, output_path, education_level, scene_number, width, height):
         return output_path
 
     # 2. Respaldo: AI Horde (Stable Diffusion descentralizado)

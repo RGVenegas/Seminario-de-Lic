@@ -55,8 +55,13 @@ def _apply_lower_third_subtitle(image_path: str, subtitle_text: str, scene_numbe
         # Etiqueta de escena en español
         draw.text((65, banner_y0 + 10), f"ESCENA {scene_number}  |  CONCEPTO CLAVE", fill=(56, 189, 248), font=font_badge)
 
-        # Texto del subtítulo (garantizado en español)
-        display_text = subtitle_text[:95] + ("..." if len(subtitle_text) > 95 else "")
+        # Texto del subtítulo (completo, sin cortar palabras a medias)
+        clean_sub = subtitle_text.strip().rstrip(".").rstrip(",")
+        if len(clean_sub) > 85:
+            cut_idx = clean_sub[:85].rfind(" ")
+            display_text = clean_sub[:cut_idx] if cut_idx > 30 else clean_sub[:85]
+        else:
+            display_text = clean_sub
         draw.text((65, banner_y0 + 35), display_text, fill=(255, 255, 255), font=font_main)
 
         combined = Image.alpha_composite(base_img, overlay).convert("RGB")

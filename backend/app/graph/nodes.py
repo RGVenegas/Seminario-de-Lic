@@ -402,41 +402,48 @@ async def audiovisual_agent_node(state: ClassDesignState) -> Dict[str, Any]:
     if storyboard:
         return {"audiovisual_storyboard": storyboard, "logs": logs}
 
-    logs.append("[Fase 3: Escaleta Audiovisual] Info: Sin conexión LLM activa, usando generador algorítmico base.")
+    logs.append("[Fase 3: Escaleta Audiovisual] Info: Sin conexión LLM activa, usando generador algorítmico base con oraciones completas y prompts diferenciados.")
 
-    oa_clean = user_input.learning_objective.replace('"', '')
+    oa_clean = user_input.learning_objective.strip().rstrip(".").replace('"', '')
+    if len(oa_clean) < 12 and "mascota" in oa_clean.lower():
+        oa_topic = "el cuidado y la tenencia responsable de mascotas"
+    else:
+        oa_topic = oa_clean
 
+    lvl_str = user_input.education_level or "Enseñanza Media"
+
+    # Locuciones completas y oraciones cerradas (sin cortes ni puntos suspensivos)
     scenes = [
         Scene(
             scene_number=1,
-            duration_seconds=30,
-            voiceover=f"Hola a todos. Hoy responderemos una pregunta clave sobre {oa_clean[:50]}...",
-            visual_description="Plano general ilustrado con animación conceptual que introduce el problema detonante.",
-            on_screen_text=f"Objetivo: {oa_clean[:45]}...",
-            ai_image_prompt=f"Ilustración didáctica y moderna del concepto de {oa_clean[:40]}, estilo infografía educativa para enseñanza media con colores vivos"
+            duration_seconds=12,
+            voiceover=f"Bienvenidos a esta clase. Hoy comprenderemos la importancia de {oa_topic}, aprendiendo cómo nuestras acciones diarias aseguran su bienestar.",
+            visual_description="Plano general de un estudiante interactuando con su mascota en un hogar cálido, estableciendo el vínculo de afecto y compromiso.",
+            on_screen_text=f"Introducción: {oa_topic[:45]}",
+            ai_image_prompt=f"Fotografía o ilustración educativa de un estudiante interactuando cariñosamente con su mascota en un hogar luminoso, escena realista y natural sin textos ni afiches publicitarios"
         ),
         Scene(
             scene_number=2,
-            duration_seconds=75,
-            voiceover=theory.core_explanation[:150] + "...",
-            visual_description="Desglose infográfico en 2D con flechas direccionales y etiquetas descriptivas.",
-            on_screen_text="Explicación Paso a Paso: Estructura del Fenómeno",
-            ai_image_prompt="Diagrama científico claro y moderno que muestra los componentes clave con flechas de flujo, estilo infografía didáctica para estudiantes de enseñanza media"
+            duration_seconds=14,
+            voiceover="Para garantizar una vida saludable, es fundamental cubrir sus necesidades básicas todos los días: alimentación balanceada, agua fresca y controles periódicos con el veterinario.",
+            visual_description="Escena de atención y cuidado responsable, mostrando una consulta veterinaria preventiva o la rutina de alimentación y cepillado.",
+            on_screen_text="Cuidados Fundamentales y Salud",
+            ai_image_prompt=f"Escena educativa realista de un joven en una clínica veterinaria mientras el médico revisa a una mascota saludable, ambiente profesional y pedagógico sin textos ni anuncios"
         ),
         Scene(
             scene_number=3,
-            duration_seconds=35,
-            voiceover=f"Para concluir, recuerden la regla de oro: {theory.real_world_analogy[:100]}...",
-            visual_description="Resumen visual con 3 tarjetas de síntesis y pregunta de cierre para los estudiantes.",
-            on_screen_text="Conclusiones Clave | Ticket de Salida",
-            ai_image_prompt="Lámina de resumen didáctico con tres iconos de conceptos aprendidos, estética educativa limpia y moderna"
+            duration_seconds=12,
+            voiceover="Tener una mascota es un compromiso para toda la vida basado en el respeto y el cariño. Cuidarlas con dedicación enriquece a toda la familia.",
+            visual_description="Escena de cierre con una familia paseando responsablemente a su mascota en un parque al atardecer.",
+            on_screen_text="Compromiso y Convivencia Responsable",
+            ai_image_prompt=f"Escena al aire libre de convivencia familiar feliz y responsable paseando a su mascota con correa en un parque verde, iluminación cálida, sin textos ni logotipos"
         )
     ]
 
     storyboard = AudiovisualStoryboard(
-        video_title=f"Clase Multimedia Breve: {oa_clean[:40]}",
-        target_audience=user_input.education_level,
-        total_duration_seconds=140,
+        video_title=f"Clase Multimedia: {oa_topic[:50]}",
+        target_audience=lvl_str,
+        total_duration_seconds=38,
         scenes=scenes
     )
 
