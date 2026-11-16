@@ -467,11 +467,8 @@ async def quality_reviewer_node(state: ClassDesignState) -> Dict[str, Any]:
         f"6. Escaleta: {len(av.scenes)} escenas\n"
     )
 
-    # Prioridad: 1) Servidor Quotas Institucional (si está habilitado), 2) OpenAI (Profesor), 3) Gemini (Alumno)
-    providers = []
-    if settings.use_institutional_quota:
-        providers.append(lambda: get_institutional_llm(max_tokens=1200))
-    providers.extend([get_openai_llm, get_gemini_llm])
+    # Prioridad: 1) OpenAI (Profesor), 2) Gemini (Alumno)
+    providers = [get_openai_llm, get_gemini_llm]
     report, provider_used = await try_generate_structured(
         providers=providers,
         schema=QualityAuditReport,
