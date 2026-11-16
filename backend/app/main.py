@@ -46,20 +46,20 @@ class RenderVideoRequest(BaseModel):
 async def serve_index():
     index_path = os.path.join(project_root, "index.html")
     if os.path.exists(index_path):
-        return FileResponse(index_path)
+        return FileResponse(index_path, headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
     return {"status": "online", "service": settings.app_name}
 
 
 @app.get("/styles.css")
 async def serve_css():
     css_path = os.path.join(project_root, "styles.css")
-    return FileResponse(css_path, media_type="text/css")
+    return FileResponse(css_path, media_type="text/css", headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
 
 
 @app.get("/app.js")
 async def serve_js():
     js_path = os.path.join(project_root, "app.js")
-    return FileResponse(js_path, media_type="application/javascript")
+    return FileResponse(js_path, media_type="application/javascript", headers={"Cache-Control": "no-cache, no-store, must-revalidate"})
 
 
 @app.get("/favicon.ico", include_in_schema=False)

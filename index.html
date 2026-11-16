@@ -12,22 +12,148 @@
   <!-- Favicon Académico SVG -->
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎓</text></svg>">
   
-  <!-- CSS Personalizado Académico -->
-  <link rel="stylesheet" href="styles.css">
+  <!-- CSS Personalizado Académico (con cache buster) -->
+  <link rel="stylesheet" href="styles.css?v=2.5">
 
-  <!-- Inicialización Inmediata de Tema (Evita parpadeos FOUC) -->
+  <!-- Estilos Críticos y Botón de Modo Oscuro Ultra-Moderno -->
+  <style>
+    .header-top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    @media (max-width: 640px) {
+      .header-top-bar {
+        flex-direction: column;
+        gap: 10px;
+      }
+    }
+    .theme-toggle-btn {
+      -webkit-appearance: none !important;
+      appearance: none !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 10px !important;
+      padding: 6px 16px 6px 8px !important;
+      border-radius: 9999px !important;
+      border: 1px solid var(--border-light, #e2e8f0) !important;
+      background: var(--bg-card, #ffffff) !important;
+      color: var(--text-main, #334155) !important;
+      font-family: var(--font-main, 'Plus Jakarta Sans', sans-serif) !important;
+      font-size: 0.84rem !important;
+      font-weight: 600 !important;
+      cursor: pointer !important;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04) !important;
+      transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      user-select: none !important;
+      outline: none !important;
+    }
+    .theme-toggle-btn:hover {
+      background: var(--bg-subtle, #f1f5f9) !important;
+      border-color: var(--primary-blue, #2563eb) !important;
+      color: var(--primary-blue, #2563eb) !important;
+      transform: translateY(-2px) !important;
+      box-shadow: 0 6px 18px rgba(37, 99, 235, 0.16) !important;
+    }
+    .theme-toggle-btn:active {
+      transform: translateY(0) !important;
+    }
+    .theme-toggle-icon-wrap {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: #eff6ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      box-shadow: 0 1px 3px rgba(37, 99, 235, 0.15);
+    }
+    .theme-toggle-btn i {
+      font-size: 0.88rem;
+      color: #2563eb;
+      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), color 0.3s ease;
+    }
+    .theme-toggle-btn:hover .theme-toggle-icon-wrap {
+      transform: rotate(15deg) scale(1.08);
+      background: #dbeafe;
+    }
+    [data-theme="dark"] .theme-toggle-btn {
+      background: #1e293b !important;
+      border-color: #334155 !important;
+      color: #f1f5f9 !important;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4) !important;
+    }
+    [data-theme="dark"] .theme-toggle-btn:hover {
+      background: #283548 !important;
+      border-color: #60a5fa !important;
+      color: #60a5fa !important;
+      box-shadow: 0 6px 20px rgba(59, 130, 246, 0.25) !important;
+    }
+    [data-theme="dark"] .theme-toggle-icon-wrap {
+      background: rgba(251, 191, 36, 0.15) !important;
+      box-shadow: 0 0 12px rgba(251, 191, 36, 0.25) !important;
+    }
+    [data-theme="dark"] .theme-toggle-btn i {
+      color: #fbbf24 !important;
+    }
+    [data-theme="dark"] .theme-toggle-btn:hover .theme-toggle-icon-wrap {
+      transform: rotate(45deg) scale(1.12);
+      background: rgba(251, 191, 36, 0.25) !important;
+    }
+  </style>
+
+  <!-- Script Autónomo de Tema (Se autoejecuta inmediatamente) -->
   <script>
+    function applyTheme(theme) {
+      var isDark = theme === 'dark';
+      document.documentElement.setAttribute('data-theme', theme);
+      if (document.body) {
+        document.body.classList.toggle('dark-theme', isDark);
+      }
+      try {
+        localStorage.setItem('theme', theme);
+      } catch (e) {}
+
+      var icon = document.getElementById('themeToggleIcon');
+      var text = document.getElementById('themeToggleText');
+      var btn = document.getElementById('themeToggleBtn');
+
+      if (icon) {
+        icon.className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+      }
+      if (text) {
+        text.innerText = isDark ? 'Modo Claro' : 'Modo Oscuro';
+      }
+      if (btn) {
+        btn.setAttribute('aria-label', isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro');
+        btn.setAttribute('title', isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro');
+      }
+    }
+
+    function toggleTheme() {
+      var current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+      var newTheme = current === 'dark' ? 'light' : 'dark';
+      applyTheme(newTheme);
+    }
+    window.toggleTheme = toggleTheme;
+    window.applyTheme = applyTheme;
+
+    // Ejecutar antes de que el DOM pinte para cero parpadeo
     (function() {
       try {
-        const savedTheme = localStorage.getItem('theme');
-        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-        if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
-          document.documentElement.setAttribute('data-theme', 'dark');
-        } else {
-          document.documentElement.setAttribute('data-theme', 'light');
-        }
+        var savedTheme = localStorage.getItem('theme');
+        var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var theme = savedTheme || (prefersDark ? 'dark' : 'light');
+        document.documentElement.setAttribute('data-theme', theme);
       } catch (e) {}
     })();
+
+    document.addEventListener('DOMContentLoaded', function() {
+      var current = document.documentElement.getAttribute('data-theme') || 'light';
+      applyTheme(current);
+    });
   </script>
 </head>
 <body>
@@ -41,9 +167,11 @@
           Proyecto 3 | Demostración Interactiva Multiagente
         </div>
 
-        <!-- Botón de Modo Oscuro / Claro -->
+        <!-- Botón de Modo Oscuro / Claro Moderno -->
         <button id="themeToggleBtn" class="theme-toggle-btn" onclick="toggleTheme()" aria-label="Cambiar tema de color" title="Alternar Modo Oscuro / Claro">
-          <i class="fa-solid fa-moon" id="themeToggleIcon"></i>
+          <span class="theme-toggle-icon-wrap">
+            <i class="fa-solid fa-moon" id="themeToggleIcon"></i>
+          </span>
           <span id="themeToggleText">Modo Oscuro</span>
         </button>
       </div>
@@ -361,6 +489,6 @@
     </div>
   </main>
 
-  <script src="app.js"></script>
+  <script src="app.js?v=2.5"></script>
 </body>
 </html>
