@@ -217,8 +217,52 @@ const PRESETS = {
 let currentPresetKey = 'fisica';
 let isEditMode = false;
 
+// ==========================================================================
+// GESTIÓN DE TEMA OSCURO / CLARO (PERSISTENCIA CON LOCALSTORAGE)
+// ==========================================================================
+function initTheme() {
+  let theme = 'light';
+  try {
+    const saved = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+    theme = saved || (prefersDark ? 'dark' : 'light');
+  } catch (e) {}
+  applyTheme(theme);
+}
+
+function applyTheme(theme) {
+  const isDark = theme === 'dark';
+  document.documentElement.setAttribute('data-theme', theme);
+  try {
+    localStorage.setItem('theme', theme);
+  } catch (e) {}
+
+  const icon = document.getElementById('themeToggleIcon');
+  const text = document.getElementById('themeToggleText');
+  const btn = document.getElementById('themeToggleBtn');
+
+  if (icon) {
+    icon.className = isDark ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+  }
+  if (text) {
+    text.innerText = isDark ? 'Modo Claro' : 'Modo Oscuro';
+  }
+  if (btn) {
+    btn.setAttribute('aria-label', isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro');
+    btn.setAttribute('title', isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro');
+  }
+}
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
+  const newTheme = current === 'dark' ? 'light' : 'dark';
+  applyTheme(newTheme);
+}
+window.toggleTheme = toggleTheme;
+
 // Carga Inicial
 document.addEventListener('DOMContentLoaded', () => {
+  initTheme();
   loadPreset('fisica');
 });
 

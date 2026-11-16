@@ -14,23 +14,47 @@
   
   <!-- CSS Personalizado Académico -->
   <link rel="stylesheet" href="styles.css">
+
+  <!-- Inicialización Inmediata de Tema (Evita parpadeos FOUC) -->
+  <script>
+    (function() {
+      try {
+        const savedTheme = localStorage.getItem('theme');
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        if (savedTheme === 'dark' || (!savedTheme && prefersDark)) {
+          document.documentElement.setAttribute('data-theme', 'dark');
+        } else {
+          document.documentElement.setAttribute('data-theme', 'light');
+        }
+      } catch (e) {}
+    })();
+  </script>
 </head>
 <body>
 
   <!-- Header / Hero Section Académico -->
   <header>
-    <div class="container">
-      <div class="badge-pill">
-        <span class="badge-dot"></span>
-        Proyecto 3 | Demostración Interactiva Multiagente
+    <div class="container header-container">
+      <div class="header-top-bar">
+        <div class="badge-pill">
+          <span class="badge-dot"></span>
+          Proyecto 3 | Demostración Interactiva Multiagente
+        </div>
+
+        <!-- Botón de Modo Oscuro / Claro -->
+        <button id="themeToggleBtn" class="theme-toggle-btn" onclick="toggleTheme()" aria-label="Cambiar tema de color" title="Alternar Modo Oscuro / Claro">
+          <i class="fa-solid fa-moon" id="themeToggleIcon"></i>
+          <span id="themeToggleText">Modo Oscuro</span>
+        </button>
       </div>
+
       <h1 class="hero-title">Sistema de IA Multiagente para <span>Clases Multimedia</span></h1>
       <p class="hero-subtitle">
         Orquestación de agentes IA especializados (Planificación, Contenidos, Actividades, Evaluación y Producción Audiovisual) supervisados por un Agente Revisor para garantizar coherencia didáctica.
       </p>
       
       <!-- Aviso de Datos Simulados -->
-      <div style="margin-top: 14px; display: inline-flex; align-items: center; gap: 8px; background: #fffbe8; border: 1px solid #fde68a; color: #92400e; padding: 6px 16px; border-radius: 20px; font-size: 0.8rem; font-weight: 600;">
+      <div class="demo-warning-banner">
         <i class="fa-solid fa-triangle-exclamation"></i>
         <span>Prototipo de Demostración: Los datos generados son simulados para ilustrar el comportamiento visual y la dinámica del sistema.</span>
       </div>
