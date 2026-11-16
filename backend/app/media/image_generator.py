@@ -4,6 +4,7 @@ import re
 import asyncio
 import urllib.parse
 import logging
+import base64
 from typing import Optional, Tuple
 import httpx
 from PIL import Image, ImageDraw, ImageFont, ImageFilter, ImageEnhance
@@ -63,6 +64,62 @@ def _composite_image_16_9(fg_img: Image.Image, output_path: str, width: int = TA
     bg.paste(resized_fg, (offset_x, offset_y))
 
     bg.save(output_path, "JPEG", quality=92)
+
+async def _fetch_openai_sunburst_image(
+    prompt: str,
+    output_path: str,
+    width: int = TARGET_WIDTH,
+    height: int = TARGET_HEIGHT
+) -> bool:
+    """
+    Genera una ilustración didáctica de alta fidelidad utilizando el modelo
+    gpt-image-2.6-sunburst de OpenAI.
+    Resuelve el problema de Concept Bleeding y garantiza coherencia anatómica y separación de sujetos.
+    """
+    openai_key = os.getenv("OPENAI_API_KEY", "").strip()
+    if not openai_key or openai_key.startswith("tu_") or len(openai_key) < 15:
+        return False
+
+    image_model = os.getenv("OPENAI_IMAGE_MODEL", "gpt-image-2.6-sunburst").strip()
+
+    try:
+        from openai import AsyncOpenAI
+        client = AsyncOpenAI(api_key=openai_key)
+
+        educational_prompt = (
+            f"Educational science illustration: {prompt}. "
+            "Clean pedagogical composition, distinct separated subjects, precise anatomy, vibrant educational colors, horizontal composition."
+        )
+
+        logger.info(f"[OpenAI Sunburst] Generando imagen de alta calidad con {image_model}...")
+        response = await client.images.generate(
+            model=image_model,
+            prompt=educational_prompt,
+            size="1024x1024",
+            n=1
+        )
+
+        if response and response.data:
+            item = response.data[0]
+            raw_img = None
+
+            if getattr(item, "b64_json", None):
+                img_bytes = base64.b64decode(item.b64_json)
+                raw_img = Image.open(io.BytesIO(img_bytes)).convert("RGB")
+            elif getattr(item, "url", None):
+                async with httpx.AsyncClient(timeout=25.0) as http_client:
+                    r_img = await http_client.get(item.url)
+                    if r_img.status_code == 200:
+                        raw_img = Image.open(io.BytesIO(r_img.content)).convert("RGB")
+
+            if raw_img:
+                _composite_image_16_9(raw_img, output_path, width, height)
+                logger.info(f"[OpenAI Sunburst OK] Imagen generada y compuesta exitosamente en 16:9 con {image_model}.")
+                return True
+
+    except Exception as e:
+        logger.warning(f"[OpenAI Sunburst] Aviso: No se pudo generar con {image_model} ({e}). Derivando a siguiente proveedor...")
+    return False
 
 async def _fetch_ai_horde_image(
     prompt: str,
@@ -235,23 +292,29 @@ async def generate_scene_image(
 ) -> str:
     """
     Genera la imagen ilustrativa para una escena educativa (100% en español).
-    1. Intenta generación visual por IA con AI Horde (Stable Diffusion descentralizado, gratis).
-    2. Si no responde a tiempo, intenta con Pollinations (modelo Flux).
-    3. Si la red externa no responde, genera una lámina infográfica diagramática en alta resolución (Pillow).
+    1. Prioridad: OpenAI gpt-image-2.6-sunburst (Máxima fidelidad, cero concept bleeding).
+    2. Respaldo: AI Horde (Stable Diffusion descentralizado, costo $0).
+    3. Respaldo secundario: Pollinations Flux.
+    4. Respaldo determinista infográfico (Pillow con diseño esquemático y nivel MINEDUC en español).
     """
     os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
 
-    # 1. Prioridad: Generación IA con AI Horde (Prompt fiel a la escena)
+    # 1. Prioridad: OpenAI gpt-image-2.6-sunburst (Máxima fidelidad)
+    logger.info(f"[Imagen Escena {scene_number}] Intentando generación de alta calidad con OpenAI Sunburst...")
+    if await _fetch_openai_sunburst_image(prompt, output_path, width, height):
+        return output_path
+
+    # 2. Respaldo: AI Horde (Stable Diffusion descentralizado)
     logger.info(f"[Imagen Escena {scene_number}] Generando imagen con IA (AI Horde) para: '{prompt[:60]}...'")
     if await _fetch_ai_horde_image(prompt, output_path, width, height):
         return output_path
 
-    # 2. Respaldo secundario: Pollinations Flux
+    # 3. Respaldo secundario: Pollinations Flux
     logger.info(f"[Imagen Escena {scene_number}] Intentando respaldo visual con Pollinations...")
     if await _fetch_pollinations_image(prompt, output_path, width, height):
         return output_path
 
-    # 3. Respaldo determinista infográfico (Pillow con diseño esquemático y nivel MINEDUC en español)
+    # 4. Respaldo determinista infográfico (Pillow con diseño esquemático y nivel MINEDUC en español)
     logger.info(f"[Imagen Escena {scene_number}] Generando lámina infográfica didáctica...")
     _generate_infographic_visual_slide(
         output_path=output_path,

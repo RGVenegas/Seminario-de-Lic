@@ -22,6 +22,7 @@ class Settings(BaseModel):
     # 1. Proveedor OpenAI (Profesor Guía)
     openai_api_key: str = Field(default_factory=lambda: os.getenv("OPENAI_API_KEY", ""))
     default_model: str = Field(default_factory=lambda: os.getenv("OPENAI_MODEL", "gpt-4o-mini"))
+    openai_image_model: str = Field(default_factory=lambda: os.getenv("OPENAI_IMAGE_MODEL", "gpt-image-2.6-sunburst"))
     
     # 2. Proveedor Google Gemini (Cuenta Alumno)
     gemini_api_key: str = Field(default_factory=lambda: os.getenv("GEMINI_API_KEY", ""))
